@@ -105,25 +105,11 @@
   //-----------------------------------------------
   //PUBLIC METHODS
   //-----------------------------------------------
-
+  //-----------------------------------------------
+  //INIT FORM
+  //-----------------------------------------------
   methods.initForm = function (userSettings, formInstance) {
-    var formSettings = $.extend(true, {
-        formErrorMessages: formErrorMessages,
-        formValidMessages: formValidMessages,
-        fieldErrorMessages: fieldErrorMessages,
-        fieldValidMessages: fieldValidMessages,
-        fieldErrorClass: 'field_not-valid',
-        fieldValidClass: 'field_valid',
-        messageErrorClass: 'message_not-valid',
-        messageValidClass: 'message_valid',
-        labelErrorClass: 'label_not-valid',
-        labelValidClass: 'label_valid',
-        formMessagesWrapperClass: 'form-messages-wrapper', // the class of the element in wich messages should be appended to
-        validateOnChange: true, //live validation, validate field while user is typing, prevent user from typing incorrect chars, prevent max and so on...
-        validateOnBlur: true, //validate filed on blur
-        statistics: false, //collect validation data to improve form usability
-        fields: null //array with all form field's options
-      }, userSettings),
+    var formSettings = $.extend(true, {}, $.fn.ariaForms.defaultSettings, userSettings),
       formInstanceId = '',
       fieldsSettings = {},
       fieldSettings = {},
@@ -148,7 +134,7 @@
 
     //push form id, form instance and form settings into array
     //Id is needed to retrive the index of this form instance from the first level array formsArray
-    formArray.push(formInstanceId, formInstance, formSettings, formInstance.find('.' + formSettings.formMessagesWrapperClass));
+    formArray.push(formInstanceId, formInstance, formSettings, formInstance.find('.' + formSettings.formMessageWrapperClass));
 
     //push formArray into first level array formsArray
     formsArray.push(formArray);
@@ -165,11 +151,11 @@
     //initialise each field
     if (formSettings.fields !== null) {
       //initialise fields of the form
-      //calling the method initField on each field
+      //calling the method initFields on each field
       //i = 0
       l = fieldsSettings.length; //get lenght of array fieldsSettings (=== number of fields to initialise)
       for (i; i < l; i = i + 1) {
-        methods.initField(fieldsSettings[i], formInstance);
+        methods.initFields(fieldsSettings[i], formInstance);
       }
     }
 
@@ -177,12 +163,15 @@
     countForms = countForms + 1;
   };
 
-  
-  
-  methods.initField = function (userSettings, formInstance) {
+
+
+
+  //-----------------------------------------------
+  //INIT FIELD
+  //-----------------------------------------------
+  methods.initFields = function (userSettings, formInstance) {
     var fieldSettings = $.extend(true, {
         fieldSelector: null,
-        fieldMessagesWrapperClass: 'field-messages-wrapper', 
         validateOnChange: true,
         validateOnBlur: true
       }, userSettings),
@@ -221,7 +210,7 @@
 
     //push field id, field instance, field settings into array
     //also push formInstaneId into array as a reference of the form the fields belongs to.
-    fieldArray.push(fieldInstanceId, fieldInstance, fieldSettings, fieldInstance.find('.' + fieldSettings.fieldMessagesWrapperClass), formInstanceId);
+    fieldArray.push(fieldInstanceId, fieldInstance, fieldSettings, fieldInstance.find('.' + fieldSettings.fieldMessageWrapperClass), formInstanceId, null);
 
     //push fieldArray into first level array fieldsArray
     fieldsArray.push(fieldArray);
@@ -265,22 +254,51 @@
       case 'initForm':
         methods.initForm(userSettings, formInstance);
         break;
-      case 'initField':
+      case 'initFields':
         //check if the user has passed a fields property
         //and if fields is an array
         if (userSettings.hasOwnProperty('fields') && userSettings.fields.constructor === Array) {
           //check if the fields array is not empty
-          //if it has one or more entries, call method initField for each entry
+          //if it has one or more entries, call method initFields for each entry
           i = 0;
           l = userSettings.fields.length;
           if (l > 0) {
             for (i; i < l; i = i + 1) {
-              methods.initField(userSettings[i], formInstance);
+              methods.initFields(userSettings[i], formInstance);
             }
           }
         }
         break;
     }
+  };
+
+
+  $.fn.ariaForms.defaultSettings = {
+    //form-only options
+    formMessageWrapperClass: 'form__message',
+    formMessageErrorClass: 'form__message_not-valid',
+    formMessageValidClass: 'form__message_valid',
+    formErrorMessages: formErrorMessages,
+    formValidMessages: formValidMessages,
+    //statistics: false, //collect validation data to improve form usability
+    //end form-only options
+    fieldClass: 'field',
+    labelClass: 'field__label',
+    inputClass: 'field__input',
+    fieldMessageWrapperClass: 'field__message',
+    fieldErrorClass: 'field_not-valid',
+    fieldValidClass: 'field_valid',
+    labelErrorClass: 'field__label_not-valid',
+    labelValidClass: 'field__label_valid',
+    inputErrorClass: 'field__input_not-valid',
+    inputValidClass: 'field__input_valid',
+    fieldMessageErrorClass: 'field__message_not-valid',
+    fieldMessageValidClass: 'field__message_valid',
+    fieldErrorMessages: fieldErrorMessages,
+    fieldValidMessages: fieldValidMessages,
+    validateOnChange: true, //live validation, validate field while user is typing, prevent user from typing incorrect chars, prevent max and so on...
+    validateOnBlur: true, //validate filed on blur
+    fields: null //array with all form field's options
   };
 
 }(jQuery));
@@ -302,7 +320,7 @@ $(document).ready(function () {
       }
     ]
   });
-  //$('form').ariaForms('initField', {});
+  //$('form').ariaForms('initFields', {});
 });
 
 
