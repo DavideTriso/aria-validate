@@ -82,7 +82,7 @@
     }
 
   </style>
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script type="text/javascript" src="aria-forms.js"></script>
 </head>
 
@@ -93,15 +93,15 @@
 
     <div class="input-group">
       <h2>Integer &#9773;</h2>
-      <div class="input-block">
-        <label for="int-test-required">Integer (required)</label>
-        <input type="number" class="cs-validate" data-type="int" min="-12" max="12" data-min="-10" data-max="10" id="int-test-required" name="int-test-required" required/>
-        <div class="cs-error-wrapper" data-for="int-test-required" id="int-test-required-error">
-          <p class="cs-error" data-error="100" data-for="int-test-required">100 missing input in required field</p>
+      <div class="input-group" id="integer-test-1">
+        <label class="input-group__label">Integer (required)</label>
+        <input type="number" class="input-group__input" id="integer-test-1__input" required/>
+        <div class="input-group__alertbox">
+          <!--<p class="cs-error" data-error="100" data-for="int-test-required">100 missing input in required field</p>
           <p class="cs-error" data-error="50" data-for="int-test-required">50 carachter typed is not allowed</p>
           <p class="cs-error" data-error="0" data-for="int-test-required">0 not and integer</p>
           <p class="cs-error" data-error="1" data-for="int-test-required">1 too small</p>
-          <p class="cs-error" data-error="2" data-for="int-test-required">2 too big</p>
+          <p class="cs-error" data-error="2" data-for="int-test-required">2 too big</p>-->
         </div>
       </div>
       <div class="input-block">
@@ -274,7 +274,7 @@
         <p class="cs-error" data-error="75" data-for="password-test-repeat">75 Input in the two fields does not match</p>
       </div>
     </div>
-    
+
 
     <div class="input-group">
       <h2>Year &#9773;</h2>
