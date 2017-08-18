@@ -83,7 +83,7 @@
 
   </style>
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script type="text/javascript" src="aria-forms.js"></script>
+  <script type="text/javascript" src="aria-validate.js"></script>
 </head>
 
 <body>
@@ -91,73 +91,47 @@
     <input type="text" name="keycode" id="keycode" />
 
 
-    <div class="input-group">
-      <h2>Integer &#9773;</h2>
-      <div class="input-group" id="integer-test-1">
-        <label class="input-group__label">Integer (required)</label>
-        <input type="number" class="input-group__input" id="integer-test-1__input" required/>
-        <div class="input-group__alertbox">
-          <!--<p class="cs-error" data-error="100" data-for="int-test-required">100 missing input in required field</p>
+    <h2>Integer &#9773;</h2>
+    <div class="input-group" id="integer-test-1">
+      <label class="input-group__label">Integer (required)</label>
+      <input type="number" class="input-group__input" id="integer-test-1__input" required/>
+      <div class="input-group__alertbox">
+        <!--<p class="cs-error" data-error="100" data-for="int-test-required">100 missing input in required field</p>
           <p class="cs-error" data-error="50" data-for="int-test-required">50 carachter typed is not allowed</p>
           <p class="cs-error" data-error="0" data-for="int-test-required">0 not and integer</p>
           <p class="cs-error" data-error="1" data-for="int-test-required">1 too small</p>
           <p class="cs-error" data-error="2" data-for="int-test-required">2 too big</p>-->
-        </div>
       </div>
-      <div class="input-block">
-        <label for="int-test">Integer (not required)</label>
-        <input type="number" class="cs-validate" data-type="int" min="-10" max="10" data-min="-10" data-max="10" id="int-test" name="int-test" />
-        <div class="cs-error-wrapper" data-for="int-test" id="int-test-error">
-          <p class="cs-error" data-error="50" data-for="int-test">50 carachter typed is not allowed</p>
-          <p class="cs-error" data-error="0" data-for="int-test">0 not and integer</p>
-          <p class="cs-error" data-error="1" data-for="int-test">1 too small</p>
-          <p class="cs-error" data-error="2" data-for="int-test">2 too big</p>
-        </div>
+    </div>
+
+    <div class="input-group" id="range-test-1">
+      <label class="input-group__label" for="int-range-test">Integer with input type="range"</label>
+      <input type="range" class="input-group__input" id="int-range-test" name="int-range-test" />
+      <div class="input-group__alertbox">
+        <!--<p class="cs-error" data-error="1" data-for="int-range-test">1 too small</p>
+          <p class="cs-error" data-error="2" data-for="int-range-test">2 too big</p>-->
       </div>
-      <div class="input-block">
-        <label for="int-range-test">Integer with input type="range"</label>
-        <input type="range" class="cs-validate" data-type="int" min="-15" max="15" data-min="-10" data-max="10" id="int-range-test" name="int-range-test" />
-        <div class="cs-error-wrapper" data-for="int-range-test" id="int-range-test-error">
-          <p class="cs-error" data-error="1" data-for="int-range-test">1 too small</p>
-          <p class="cs-error" data-error="2" data-for="int-range-test">2 too big</p>
-        </div>
-      </div>
-      <p>Attributes: data-min, data-max</p>
     </div>
 
 
-    <div class="input-group">
-      <h2>Number (String of numbers only, no letters allowed) &#9773;</h2>
-      <div class="input-block">
-        <label for="number-test-required">Number field (required)</label>
-        <input type="text" class="cs-validate" data-type="number" data-accept="dashes" id="number-test-required" name="number-test-required" data-min="2" data-max="4" data-push="push-number" required/>
-        <p>Current value: <span id="push-number"></span></p>
-        <div class="cs-error-wrapper" data-for="number-test-required" id="number-test-required-error">
-          <p class="cs-error" data-error="100" data-for="number-test-required">100 missing input in required field</p>
-          <p class="cs-error" data-error="50" data-for="number-test-required">50 you are trying to type a not allowed carachter</p>
-          <p class="cs-error" data-error="0" data-for="number-test-required">0 some carachters entered are not allowed</p>
-          <p class="cs-error" data-error="1" data-for="number-test-required">1 number of digit is too small</p>
-          <p class="cs-error" data-error="2" data-for="number-test-required">2 number of digits is too long</p>
-          <p class="cs-error" data-error="3" data-for="number-test-required">3 maximum digits number reached</p>
-        </div>
+    <h2>Number &#9773;</h2>
+    <div class="input-group" id="number-test-1">
+      <label class="input-group__label" for="number-test">Number</label>
+      <input type="text" class="input-group__input" id="number-test" name="number-test" />
+      <div class="input-group__alertbox">
+        <!--<p class="cs-error" data-error="1" data-for="int-range-test">1 too small</p>
+          <p class="cs-error" data-error="2" data-for="int-range-test">2 too big</p>-->
       </div>
-      <div class="input-block">
-        <label for="number-test">Number field (not required)</label>
-        <input type="text" class="cs-validate" data-type="number" data-accept="dashes" id="number-test" name="number-test" data-min="2" data-max="4" />
-        <div class="cs-error-wrapper" data-for="number-test" id="number-test-error">
-          <p class="cs-error" data-error="50" data-for="number-test">50 you are trying to type a not allowed carachter</p>
-          <p class="cs-error" data-error="0" data-for="number-test">0 some carachters entered are not allowed</p>
-          <p class="cs-error" data-error="1" data-for="number-test">1 number of digit is too small</p>
-          <p class="cs-error" data-error="2" data-for="number-test">2 number of digits is too long</p>
-          <p class="cs-error" data-error="3" data-for="number-test">3 maximum digits number reached</p>
-        </div>
-      </div>
-      <p>Attributes: data-min, data-max, data-accept</p>
-      <p>Token values for attribute "data-accept": none | dashes | slashes</p>
-      <p>Data-min and data-max sets the minimum and maximum lenght of digits. E.g.: data-max='4' means, the user can type a maximum of 4 digits in the field, not that the user can not type the number 5</p>
     </div>
 
 
+
+
+
+
+
+
+ 
     <div class="input-group">
       <h2>String (string of only letters, numbers are not allowed) &#9773;</h2>
       <div class="input-block">
