@@ -64,8 +64,6 @@
     self.selectElements();
     self.initMarkup();
     self.bindEventListeners();
-
-    console.log(self.element);
   };
 
 
@@ -152,21 +150,31 @@
         fieldTag = self.fieldTag,
         fieldType = self.fieldType;
 
-      if (fieldTag === 'INPUT' && (fieldType !== 'checkbox' && fieldType !== 'range' && fieldType !== 'radio' && fieldType !== 'number')) {
-        self.field.on('input', function () {
-          console.log('input');
-          //code to run for live validation here (+ prevent errors)
-        });
 
+      if (fieldTag === 'INPUT' && (fieldType !== 'checkbox' && fieldType !== 'range' && fieldType !== 'radio')) {
+        self.field.on('input', function () {
+          var i = 0,
+            l = self.userSettings.preventErrors.length;
+          for (i; i < l; i = i + 1) {
+            $.fn[pluginName].preventErrors[self.userSettings.preventErrors[i]]();
+          }
+        });
       } else {
         self.field.on('change', function () {
-          console.log('change');
+          var i = 0,
+            l = self.userSettings.preventErrors.length;
+          for (i; i < l; i = i + 1) {
+            $.fn[pluginName].preventErrors[self.userSettings.preventErrors[i]]();
+          }
         });
       }
 
       self.field.on('blur', function () {
-        console.log('blur');
-        //code to run when field  looses focus (autoformat + validation)
+        var i = 0,
+          l = self.userSettings.autoformat.length;
+        for (i; i < l; i = i + 1) {
+          $.fn[pluginName].autoformat[self.userSettings.autoformat[i]]();
+        }
       });
     },
     //-------------------------------------------------------------
@@ -255,6 +263,25 @@
       }
     });
   };
+
+  $.fn[pluginName].preventErrors = {
+    test: function (value) {
+      console.log(value + ' pre error1');
+    },
+    test2: function (value) {
+      console.log(value + ' prev error 2');
+    }
+  };
+  
+  $.fn[pluginName].autoformat = {
+    test: function (value) {
+      console.log(value + ' autoformat 1');
+    },
+    test2: function (value) {
+      console.log(value + ' autoformat 2');
+    }
+  };
+
 
   $.fn[pluginName].regionSettings = {
     dateFormat: 'eu', // eu / us
