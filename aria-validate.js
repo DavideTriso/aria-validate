@@ -49,15 +49,26 @@
   }
 
 
+
+
   //-----------------------------------------
   // The actual plugin constructor
   function AriaValidate(element, userSettings) {
     var self = this;
 
     self.element = $(element);
+
+    //SETTINGS
     self.userSettings = userSettings; //the unchanged settings object passed from user
+    self.validate = self.userSettings.validate;
+
+    //CLASSES AND REGION SETTINGS
     self.classes = makeSettings($.fn[pluginName].defaultClasses, self.userSettings.classes); //computet html classes used to retrive elements
-    self.regionSettings = makeSettings($.fn[pluginName].regionSettings, self.userSettings.regionSettings); //computed region settings for this field
+    self.regionSettings = makeSettings($.fn[pluginName].regionSettings, self.userSettings.regionSettings); //computet region settings for this field
+
+    //VALIDATION
+    self.errorMsg = '';
+    self.fieldStatus = 'untouched';
 
     //-----------------------------------
     //Initialise field
@@ -65,7 +76,6 @@
     self.initMarkup();
     self.bindEventListeners();
   };
-
 
 
   // Avoid Plugin.prototype conflicts
@@ -91,7 +101,7 @@
       self.field = element.find('.' + classes.fieldClass);
       self.label = element.find('.' + classes.labelClass);
       self.alertbox = element.find('.' + classes.alertboxClass).length === 1 ? element.find('.' + classes.alertboxClass) : false;
-      self.successbox = element.find('.' + classes.successboxClass).length === 1 ? element.find('.' + classes.succesboxClass) : false;
+      self.successbox = element.find('.' + classes.successboxClass).length === 1 ? element.find('.' + classes.successboxClass) : false;
       self.fieldTag = self.field.prop('tagName');
       self.fieldType = self.fieldTag === 'INPUT' ? self.field.attr('type') : false;
     },
@@ -151,34 +161,24 @@
         fieldType = self.fieldType;
 
 
-      if (fieldTag === 'INPUT' && (fieldType !== 'checkbox' && fieldType !== 'range' && fieldType !== 'radio')) {
-        self.field.on('input', function () {
-          var i = 0,
-            l = self.userSettings.preventErrors.length;
-          for (i; i < l; i = i + 1) {
-            $.fn[pluginName].preventErrors[self.userSettings.preventErrors[i]]();
-          }
-        });
-      } else {
-        self.field.on('change', function () {
-          var i = 0,
-            l = self.userSettings.preventErrors.length;
-          for (i; i < l; i = i + 1) {
-            $.fn[pluginName].preventErrors[self.userSettings.preventErrors[i]]();
-          }
-        });
-      }
-
-      self.field.on('blur', function () {
-        var i = 0,
-          l = self.userSettings.autoformat.length;
-        for (i; i < l; i = i + 1) {
-          $.fn[pluginName].autoformat[self.userSettings.autoformat[i]]();
-        }
+      //Bind blur event on field for field validation.
+      self.field.on('blur.' + pluginName, function () {
+        self.runValidation();
       });
     },
-    //-------------------------------------------------------------
-    //Validation
+    runValidation: function () {
+      var self = this;
+
+      for (var key in self.validate) {
+        self.fieldStatus = self.validationFunctions[key](self.validate[key], self.field.val());
+
+        if (self.fieldStatus !== true) {
+          self.invalidateFieldGroup();
+          return;
+        }
+      }
+      self.validateFieldGroup();
+    },
     invalidateFieldGroup: function () {
       var self = this;
 
@@ -203,7 +203,8 @@
       }
       if (self.alertbox && self.errorMsg !== false) {
         self.alertbox
-          .html(self.errorMsg)
+          //.html(self.errorMsg)
+          .html('error error')
           .attr(a.aHi, a.f)
           .addClass(self.classes.alertboxVisibleClass);
       }
@@ -237,6 +238,71 @@
           .addClass(self.classes.successboxVisibleClass);
       }
     },
+    //------------------------------------------------------
+    //Validation
+    validationFunctions: {
+      text: function () {
+        return true
+      },
+      letters: function (value) {
+        //
+      },
+      number: function (value) {
+        //  
+      },
+      int: function (value) {
+        //
+      },
+      float: function (value) {
+        //
+      },
+      bool: function (value) {
+        //
+      },
+      date: function (value) {
+        //
+      },
+      minDate: function () {
+        //
+      },
+      maxDate: function () {
+        //
+      },
+      time: function (value) {
+        //
+      },
+      email: function (value) {
+        //
+      },
+      telWithPrefix: function (value) {
+        //
+      },
+      telNoPrefix: function (value) {
+        //
+      },
+      password: function (value) {
+        //
+      },
+      min: function (param, value) {
+        return parseFloat(value, 10) >= param ? true : 'min';
+      },
+      max: function (param, value) {
+        return parseFloat(value, 10) <= param ? true : 'max';
+      },
+      minLength: function (param, value) {
+        return value.length >= param ? true : 'minLength';
+      },
+      maxLength: function (param, value) {
+        return value.length <= param ? true : 'maxLength';
+      },
+      required: function (param, value) {
+        return value.length > 0 ? true : 'required';
+      }
+    },
+    errorMsgs: {
+      //
+    },
+    successMsg: 'Perfect! You entered exactly what we expected!',
     //-------------------------------------------------------------
     //Method caller
     //-------------------------------------------------------------
@@ -244,7 +310,6 @@
       //
     }
   });
-
 
   // A really lightweight plugin wrapper around the constructor,
   // preventing against multiple instantiations
@@ -264,23 +329,6 @@
     });
   };
 
-  $.fn[pluginName].preventErrors = {
-    test: function (value) {
-      console.log(value + ' pre error1');
-    },
-    test2: function (value) {
-      console.log(value + ' prev error 2');
-    }
-  };
-  
-  $.fn[pluginName].autoformat = {
-    test: function (value) {
-      console.log(value + ' autoformat 1');
-    },
-    test2: function (value) {
-      console.log(value + ' autoformat 2');
-    }
-  };
 
 
   $.fn[pluginName].regionSettings = {
@@ -291,6 +339,7 @@
     codeSeparator: '-',
     telPrefixSeparator: ' '
   };
+
 
   $.fn[pluginName].defaultClasses = {
     fieldGroupIdPrefix: 'field-group--',
@@ -314,6 +363,7 @@
     preventErrors: false,
     autoformat: false
   };
+
 }(jQuery, window, document));
 
 
@@ -327,20 +377,16 @@ $(window).ready(function () {
       fieldClass: 'input-group__input',
       labelClass: 'input-group__label',
       alertboxClass: 'input-group__alertbox',
-      successboxClass: 'input-group__successsbox',
+      successboxClass: 'input-group__successbox',
       fieldGroupValidClass: 'field-group_valid',
       fieldGroupErrorClass: 'field-group_error'
-    },
-    regionSettings: {
-      dateFormat: 'us'
     },
     validate: {
       type: 'text',
       minLength: 3,
-      maxLength: 100
-    },
-    preventErrors: ['test', 'test2'],
-    autoformat: ['test', 'test2']
+      maxLength: 100,
+      max: 9
+    }
   });
 
 
@@ -353,16 +399,11 @@ $(window).ready(function () {
       fieldGroupValidClass: 'field-group_valid',
       fieldGroupErrorClass: 'field-group_error'
     },
-    regionSettings: {
-      dateFormat: 'us'
-    },
     validate: {
       type: 'text',
       minLength: 3,
       maxLength: 100
-    },
-    preventErrors: ['test', 'test2'],
-    autoformat: ['test', 'test2']
+    }
   });
 
 
@@ -371,19 +412,15 @@ $(window).ready(function () {
       fieldClass: 'input-group__input',
       labelClass: 'input-group__label',
       alertboxClass: 'input-group__alertbox',
-      successboxClass: 'input-group__successsbox',
+      successboxClass: 'input-group__successbox',
       fieldGroupValidClass: 'field-group_valid',
       fieldGroupErrorClass: 'field-group_error'
     },
-    regionSettings: {
-      dateFormat: 'us'
-    },
     validate: {
-      type: 'text',
+      text: true,
       minLength: 3,
-      maxLength: 100
-    },
-    preventErrors: ['test', 'test2'],
-    autoformat: ['test', 'test2']
+      maxLength: 10,
+      required: true
+    }
   });
 });
