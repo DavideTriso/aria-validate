@@ -320,7 +320,7 @@
         return isInt(value) ? true : value === '' ? true : 'int';
       },
       float: function (param, value) {
-        //check if value is float or int
+          return !isNaN(value - parseFloat(value)) ? true : 'float';
       },
       bool: function (param, value) {
         //check if value is true/checked (only for checkbox)
