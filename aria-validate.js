@@ -38,7 +38,7 @@
 
   /*
    * Return merged settings object, if user passed valid custom settings,
-   * else if passed settings is === false, return unchanged default settings object
+   * else if settings === false, return unchanged default settings object
    */
   function makeSettings(defaultSettings, userSettings) {
     if (userSettings) {
@@ -61,20 +61,25 @@
     //SETTINGS
     self.userSettings = userSettings; //the unchanged settings object passed from user
     self.validate = self.userSettings.validate;
+    //self.autoformat = self.userSettings.autoformat;
+    //self.preventErrors = self.userSettings.preventerrors;
 
     //CLASSES AND REGION SETTINGS
     self.classes = makeSettings($.fn[pluginName].defaultClasses, self.userSettings.classes); //computet html classes used to retrive elements
-    self.regionSettings = makeSettings($.fn[pluginName].regionSettings, self.userSettings.regionSettings); //computet region settings for this field
+    self.regionAndFormattingSettings = makeSettings($.fn[pluginName].regionAndFormattingSettings, self.userSettings.regionAndFormattingSettings); //computed region settings for this field
 
     //VALIDATION
-    self.errorMsg = '';
-    self.fieldStatus = 'untouched';
+    self.fieldStatus = undefined; //Describes the staus of the field: undefined -> field was never focussed and validated, true -> correct input , 'errorCode' -> incorrect input
+    self.fieldValue = undefined; //The value of the field
+    self.errorMsgs = makeSettings($.fn[pluginName].errorMsgs, self.userSettings.errorMsgs); //computed error messages settings for this field;
+    self.successMsg = self.userSettings.successMsg ? self.userSettings.successMsg : $.fn[pluginName].successMsg; //Success message for this field
 
     //-----------------------------------
     //Initialise field
     self.selectElements();
     self.initMarkup();
     self.bindEventListeners();
+    self.retriveFieldValue();
   };
 
 
@@ -150,12 +155,18 @@
       }
 
       //trigger custom event on window for user to listen for
-      win.trigger(pluginName + '.initMarkup', [self]);
+      win.trigger(pluginName + '.markupInitialised', [self]);
 
       //increment count by one
       count = count + 1;
     },
     bindEventListeners: function () {
+      /*
+       * Bind event listeners to the field.
+       * Right now we just listen for blur,
+       * in future other validations methods (live error prevention and autoformatting)
+       * will also be supported
+       */
       var self = this,
         fieldTag = self.fieldTag,
         fieldType = self.fieldType;
@@ -165,151 +176,242 @@
       self.field.on('blur.' + pluginName, function () {
         self.runValidation();
       });
+
+      //trigger custom event on window for user to listen for
+      win.trigger(pluginName + '.eventListenersAdded', [self]);
+    },
+    unbindEventListeners: function (eventName) {
+      switch (eventName) {
+        case 'blur':
+          self.field.off('blur.' + pluginName);
+          break;
+        case 'input':
+          self.field.off('input.' + pluginName);
+          break;
+        case 'change':
+          self.field.off('change.' + pluginName);
+          break;
+        case 'keydown':
+          self.field.off('keydown.' + pluginName);
+          break;
+      }
+    },
+    retriveFieldValue: function () {
+      var self = this;
+      self.fieldValue = self.fieldType !== 'checkbox' ? self.field.val() : self.field.is(":checked");
     },
     runValidation: function () {
+      /*
+       * Run validation on the field:
+       * Call each validation function passed from user for validation.
+       * If function returns true, proceed, else throw error and exit execution.
+       * If no function returns errors, then validate the field by calling self.validateFieldGroup.
+       */
       var self = this;
 
-      for (var key in self.validate) {
-        self.fieldStatus = self.validationFunctions[key](self.validate[key], self.field.val());
 
+      //loop through all validation functions
+      for (var key in self.validate) {
+        //retrive current field value and update self.fieldValue
+        self.retriveFieldValue();
+
+        //update field status
+        self.fieldStatus = self.validationFunctions[key](self.validate[key], self.fieldValue);
+
+        //if field status is not true, throw error
         if (self.fieldStatus !== true) {
           self.invalidateFieldGroup();
           return;
         }
       }
+      //no error occured, validate field group
       self.validateFieldGroup();
     },
     invalidateFieldGroup: function () {
       var self = this;
 
+      //add error classes to field group and remove valid classes
       self.element
         .removeClass(self.classes.fieldGroupValidClass)
         .addClass(self.classes.fieldGroupErrorClass);
 
+      //add error classes to field and remove valid classes
       self.field
         .attr(a.aInv, a.t)
         .removeClass(self.classes.fieldValidClass)
         .addClass(self.classes.fieldErrorClass);
 
+      //add error classes to label and remove valid classes
       self.label
         .removeClass(self.classes.labelValidClass)
         .addClass(self.classes.labelErrorClass);
 
+      //hide successbox and remove the success message
       if (self.successbox) {
         self.successbox
           .html('')
           .attr(a.aHi, a.t)
           .removeClass(self.classes.successboxVisibleClass);
       }
-      if (self.alertbox && self.errorMsg !== false) {
+
+      //append error message to alertbox and show alert
+      if (self.alertbox && self.fieldStatus !== true) {
         self.alertbox
-          //.html(self.errorMsg)
-          .html('error error')
+          .html(self.errorMsgs[self.fieldStatus])
           .attr(a.aHi, a.f)
           .addClass(self.classes.alertboxVisibleClass);
       }
+
+      //trigger custom event on window for user to listen for
+      win.trigger(pluginName + '.isInvalid', [self]);
     },
     validateFieldGroup: function () {
       var self = this;
 
+      //remove error classes and add valid classes to field group
       self.element
         .removeClass(self.classes.fieldGroupErrorClass)
         .addClass(self.classes.fieldGroupValidClass);
 
+      //remove error classes and add valid classes to field
       self.field
         .attr(a.aInv, a.f)
         .removeClass(self.classes.fieldErrorClass)
         .addClass(self.classes.fieldValidClass);
 
+      //remove error classes and add valid classes to label
       self.label
         .removeClass(self.classes.labelErrorClass)
         .addClass(self.classes.labelValidClass);
 
+      //remove error message from alertbox and hide alertbox
       if (self.alertbox) {
         self.alertbox
           .html('')
           .attr(a.aHi, a.t)
           .removeClass(self.classes.alertboxVisibleClass);
       }
+
+      //append success message to succesbox and show message
       if (self.successbox && self.successMsg !== false) {
         self.successbox
           .html(self.successMsg)
           .attr(a.aHi, a.f)
           .addClass(self.classes.successboxVisibleClass);
       }
+
+      //trigger custom event on window for user to listen for
+      win.trigger(pluginName + '.isValid', [self]);
     },
     //------------------------------------------------------
     //Validation
     validationFunctions: {
-      text: function () {
-        return true
+      letters: function (param, value) {
+        //Check if value does not contain any digit (0-9)
+        return /^[]|[\D]+$/.test(value) ? true : 'letters';
       },
-      letters: function (value) {
-        //
+      digits: function (param, value) {
+        //Check if value does not contain any letter (a-z, A-Z)
+        return /^[]|[^a-zA-ZÀÈÌÒÙàèìòùÁÉÍÓÚÝáéíóúýÂÊÎÔÛâêîôûÃÑÕãñõÄËÏÖÜäëïöüçÇßØøÅåÆæÞþÐð]+$/.test(value) ? true : 'digits';
       },
-      number: function (value) {
-        //  
+      int: function (param, value) {
+        //check if value is number and int
+        var value = parseInt(value, 10);
+        return isInt(value) ? true : value === '' ? true : 'int';
       },
-      int: function (value) {
-        //
+      float: function (param, value) {
+        //check if value is float or int
       },
-      float: function (value) {
-        //
+      bool: function (param, value) {
+        //check if value is true/checked (only for checkbox)
       },
-      bool: function (value) {
-        //
+      date: function (param, value) {
+        //convert date to ISO
+        //check if date conforms the ISO date standard
       },
-      date: function (value) {
-        //
+      minDate: function (param, value) {
+        //check if date is after the min date passed (ISO format)
       },
-      minDate: function () {
-        //
+      maxDate: function (param, value) {
+        //check if date is before the max date passed (ISO format)
       },
-      maxDate: function () {
-        //
+      time: function (param, value) {
+        //convert time to ISO format
+        //check if time is valid ISO time
       },
-      time: function (value) {
-        //
+      minTime: function (param, value) {
+        //check if time is after min time passed 
       },
-      email: function (value) {
-        //
+      maxTime: function (param, value) {
+        //check if time is before max time passed 
       },
-      telWithPrefix: function (value) {
-        //
+      email: function (param, value) {
+        //chekc if email is valid
+        return /^[]|([\w-\.]+@([\w\-]+\.)+[\w\-]{2,4})?$/.test(value) ? true : 'email';
       },
-      telNoPrefix: function (value) {
-        //
+      telWithPrefix: function (param, value) {
+        //check if phone number is valid phone number with prefix
+        return /^[]|\+(?:[0-9] ?){6,14}[0-9]$/.test(value) ? true : 'telWithPrefix';
       },
-      password: function (value) {
-        //
+      telNoPrefix: function (param, value) {
+        //check if phone number is valid phone number without prefix
+        return /^[]|(?:[0-9] ?){6,14}[0-9]$/.test(value) ? true : 'telNoPrefix';
+      },
+      telPrefix: function (param, value) {
+        //check if prefix is a valid prefix
+        return /^[]|\+(?:[0-9] ?){1,4}[0-9]$/.test(value) ? true : 'telPrefix';
+      },
+      password: function (param, value) {
+        //check if password is secure
+        return /^[]|(?=.*\d)(?=.*[!@#$%\^&*])(?=.*[a-z])(?=.*[A-Z]).{4,50}$/.test(value) ? true : 'password';
       },
       min: function (param, value) {
-        return parseFloat(value, 10) >= param ? true : 'min';
+        var value = parseFloat(value, 10);
+        return value >= param ? true : value === '' ? true : 'max';
       },
       max: function (param, value) {
-        return parseFloat(value, 10) <= param ? true : 'max';
+        var value = parseFloat(value, 10);
+        return value <= param ? true : value === '' ? true : 'max';
       },
       minLength: function (param, value) {
-        return value.length >= param ? true : 'minLength';
+        //match values higher than param or 0
+        var valueLength = value.length;
+        return valueLength >= param ? true : valueLength === 0 ? true : 'minLength';
       },
       maxLength: function (param, value) {
-        return value.length <= param ? true : 'maxLength';
+        //match values lower than param or 0
+        var valueLength = value.length;
+        return valueLength <= param ? true : valueLength === 0 ? true : 'maxLength';
       },
       required: function (param, value) {
         return value.length > 0 ? true : 'required';
       }
     },
-    errorMsgs: {
-      //
-    },
-    successMsg: 'Perfect! You entered exactly what we expected!',
     //-------------------------------------------------------------
     //Method caller
     //-------------------------------------------------------------
     methodCaller: function (methodName, methodArg) {
-      //
+      var self = this;
+
+      switch (methodName) {
+        case 'runValidation':
+          self.runValidation();
+          break;
+        case 'invalidateField':
+          self.invalidateFieldGroup();
+          break;
+        case 'validateField':
+          self.validateFieldGroup();
+          break;
+        case 'unbindEventListeners':
+          self.unbindEventListeners(methodArg);
+          break;
+      }
     }
   });
+
+
+
 
   // A really lightweight plugin wrapper around the constructor,
   // preventing against multiple instantiations
@@ -323,7 +425,7 @@
        */
       if (!$.data(self, 'plugin_' + pluginName) && (typeof userSettings === 'object' || typeof userSettings === 'undefined')) {
         $.data(self, 'plugin_' + pluginName, new AriaValidate(self, userSettings));
-      } else if (typeof userSettings === 'string' && typeof methodArg !== 'undefined') {
+      } else if (typeof userSettings === 'string') {
         $.data(self, 'plugin_' + pluginName).methodCaller(userSettings, methodArg);
       }
     });
@@ -331,7 +433,7 @@
 
 
 
-  $.fn[pluginName].regionSettings = {
+  $.fn[pluginName].regionAndFormattingSettings = {
     dateFormat: 'eu', // eu / us
     decimalSeparator: ',', // . or ,
     thousandSeparator: '.',
@@ -357,56 +459,37 @@
     successboxVisibleClass: 'field-group__successbox_visible',
   };
 
-  $.fn[pluginName].defaultSettings = {
-    classes: false,
-    validate: false,
-    preventErrors: false,
-    autoformat: false
+  $.fn[pluginName].errorMsgs = {
+    letters: 'Only letters are accepted',
+    digits: 'Only digits are accepted',
+    int: 'Enter a whole number (e.g. 12)',
+    float: 'Enter a number (e.g. 12.13 or 16)',
+    bool: 'You habe to check this checkbox',
+    date: 'Not a valid date',
+    minDate: 'The date entered is too far in the past',
+    maxDate: 'The date entered is too far in the future',
+    time: 'Entera valid time (e.g. 10:30)',
+    minTime: 'Time is before the minimum time',
+    maxTime: 'Time is after the maximum time',
+    email: 'Enter a valid email address',
+    telWithPrefix: 'Enter a valid phone number with the county prefix (e.g. +49 373837638)',
+    telNoPrefix: 'Enter a valid phone number',
+    telPrefix: 'Not a valid prefix',
+    password: 'Password is not secure',
+    min: 'The entered number is too small',
+    max: 'The entered number is too big',
+    minLength: 'The length of the input is too short',
+    maxLength: 'Field length exceeds the maximum number of chars allowed',
+    required: 'This field is required to sucessfully complete the form'
   };
+
+  $.fn[pluginName].successMsg = 'Perfect! You told us exactly what we wanted to know!';
 
 }(jQuery, window, document));
 
 
 $(window).ready(function () {
-  //$(window).on('ariaValidate.initMarkup', function (event, element) {
-  // console.log(element);
-  //})
-
-  $('#integer-test-1').ariaValidate({
-    classes: {
-      fieldClass: 'input-group__input',
-      labelClass: 'input-group__label',
-      alertboxClass: 'input-group__alertbox',
-      successboxClass: 'input-group__successbox',
-      fieldGroupValidClass: 'field-group_valid',
-      fieldGroupErrorClass: 'field-group_error'
-    },
-    validate: {
-      type: 'text',
-      minLength: 3,
-      maxLength: 100,
-      max: 9
-    }
-  });
-
-
-  $('#range-test-1').ariaValidate({
-    classes: {
-      fieldClass: 'input-group__input',
-      labelClass: 'input-group__label',
-      alertboxClass: 'input-group__alertbox',
-      successboxClass: 'input-group__successsbox',
-      fieldGroupValidClass: 'field-group_valid',
-      fieldGroupErrorClass: 'field-group_error'
-    },
-    validate: {
-      type: 'text',
-      minLength: 3,
-      maxLength: 100
-    }
-  });
-
-
+  
   $('#number-test-1').ariaValidate({
     classes: {
       fieldClass: 'input-group__input',
@@ -417,10 +500,10 @@ $(window).ready(function () {
       fieldGroupErrorClass: 'field-group_error'
     },
     validate: {
-      text: true,
+      required: true,
+      digits: true,
       minLength: 3,
       maxLength: 10,
-      required: true
     }
   });
 });
