@@ -1,48 +1,36 @@
-# ARIA FORMS
+# ARIA VALIDATE
 
 ## About
 
-**COMING SOON!** A WAI-ARIA 1.1 compliant solution for **client-side form validation**.
+A WAI-ARIA 1.1 compliant solution for **client-side form input validation**.
 
 
+## Introduction
 
-## Options
+Describe mman concepts of how the plugin works here: 
 
+* What is a field group
+* Wich element contains a field group
+* A field without alert and/or successbox: what happens?
+* Validation steps: Error prevention/live valiation on typing. / autoformatting on blur / validation on blur
 
-### Elements classes
+## Settings:
 
-Set the classes accordingly to the classes used in the html. The classes are used to select the elements of a form.
-
-Name | Default | Type | Description | Required or optional
------|---------|------|-------------|---------------------
-fieldClass | field | string | Class of field element (wrapper of a group made up by input, label and message region) | optional
-labelClass | field__label | string | Class of field label | optional
-inputClass | field__input | string | Class of field input | optional
-fieldMessageWrapperClass | string | field__message | Class of a message region wrapper (where error and valid messages are injected) | optional
-fieldErrorClass | field_not-valid | string | Class added to a field, when the user input is not valid | optional
-fieldValidClass | field_valid  | string |Class added to a field, when the user input is valid | optional
-labelErrorClass | field__label_not-valid | string | Class added to a label, when the user input is not valid | optional
-labelValidClass | field__label_valid | string | Class added to a label, when the user input is valid | optional
-inputErrorClass | field__input_not-valid | string | Class added to an input, when the user input is not valid | optional
-inputValidClass | field__input_valid | string | Class added to an input, when the user input is valid | optional
-fieldMessageErrorClass | field__message_not-valid | string | Class added to a field message wrapper, when the user input is not valid | optional
-fieldMessageValidClass | field__message_valid | string | Class added to a field message wrapper, when the user input is valid | optional
-formMessageWrapperClass | form__message | string | Class of a form message wrapper. Not a global option, restricted to form. | optional
-formMessageErrorClass | form__message_not-valid | string | Class added to a form message wrapper, when showing an error message. Not a global option, restricted to form. | optional
-formMessageValidClass | form__message_valid | string | Class added to a form message wrapper, when showing a valid message. Not a global option, restricted to form. | optional
+### Classes and default settings
 
 
-### Messages objects
-
-Name | Default | Type | Description | Required or optional
------|---------|------|-------------|---------------------
-fieldErrorMessages | placeholder (example error message) | object | Object where field error messages should be stored | required
-fieldValidMessages | placeholder (example error message) | object | Object where field valid messages should be stored | required
-formErrorMessages | placeholder (example error message) | object | Object where form error messages should be stored. Not a global option, restricted to form. | required
-formValidMessages | placeholder (example error message) | object | Object where form valid messages should be stored. Not a global option, restricted to form. | required
-
-
-### Validation rules
-
-Name | Default | Type | Description | Required or optional
------|---------|------|-------------|---------------------
+Name | Default | Type | Description 
+-----|---------|------|-------------
+fieldGroupIdPrefix | field-group-- | string | The prefix used to generate IDs of field groups.
+fieldGroupValidClass | field-group_valid string | The class added by the plugin to a field group when user input is valid.
+fieldGroupErrorClass | field-group_error string | The class added by the plugin to a field group when user input is invalid.
+fieldClass | field-group__field string | The class used by the plugin to retrive the field.
+fieldErrorClass | field-group__field_error string | The class added by the plugin to a field when user input is invalid.
+fieldValidClass | field-group__field_valid string | The class added by the plugin to a field group when user input is valid.
+labelClass | field-group__label string | The class used by the plugin to retrive the label
+labelErrorClass | field-group__label_error string | The class added by the plugin to a label when user input is invalid.
+labelValidClass | field-group__label_valid string | The class added by the plugin to a label  when user input is valid.
+alertboxClass | field-group__alertbox string | The class used by the plugin to retrive the alert-box
+successboxClass | field-group__successbox string | The class used by the plugin to retrive the success-box
+alertboxVisibleClass | field-group__alertbox_visible string | The class added by the plugin to the alert-box when an error occurs and an error message must be shown.
+successboxVisibleClass | field-group__successbox_visible string | The class added by the plugin to the success-box when user input is correct and a success message must be shown.

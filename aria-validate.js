@@ -49,8 +49,6 @@
   }
 
 
-
-
   //-----------------------------------------
   // The actual plugin constructor
   function AriaValidate(element, userSettings) {
@@ -181,6 +179,7 @@
       win.trigger(pluginName + '.eventListenersAdded', [self]);
     },
     unbindEventListeners: function (eventName) {
+      var self = this;
       switch (eventName) {
         case 'blur':
           self.field.off('blur.' + pluginName);
@@ -198,6 +197,10 @@
     },
     retriveFieldValue: function () {
       var self = this;
+      /*
+       * @TODO:
+       * Retrive value for radios, select, datalist etc...
+       */
       self.fieldValue = self.fieldType !== 'checkbox' ? self.field.val() : self.field.is(":checked");
     },
     runValidation: function () {
@@ -216,7 +219,7 @@
         self.retriveFieldValue();
 
         //update field status
-        self.fieldStatus = self.validationFunctions[key](self.validate[key], self.fieldValue);
+        self.fieldStatus = self.validation.validate[key](self.validate[key], self.fieldValue);
 
         //if field status is not true, throw error
         if (self.fieldStatus !== true) {
@@ -303,88 +306,174 @@
       //trigger custom event on window for user to listen for
       win.trigger(pluginName + '.isValid', [self]);
     },
-    //------------------------------------------------------
-    //Validation
-    validationFunctions: {
-      letters: function (param, value) {
-        //Check if value does not contain any digit (0-9)
-        return /^[]|[\D]+$/.test(value) ? true : 'letters';
-      },
-      digits: function (param, value) {
-        //Check if value does not contain any letter (a-z, A-Z)
-        return /^[]|[^a-zA-ZÀÈÌÒÙàèìòùÁÉÍÓÚÝáéíóúýÂÊÎÔÛâêîôûÃÑÕãñõÄËÏÖÜäëïöüçÇßØøÅåÆæÞþÐð]+$/.test(value) ? true : 'digits';
-      },
-      int: function (param, value) {
-        //check if value is number and int
-        var value = parseInt(value, 10);
-        return isInt(value) ? true : value === '' ? true : 'int';
-      },
-      float: function (param, value) {
+    validation: {
+      //------------------------------------------------------
+      //INPUT VALIDATION
+      validate: {
+        letters: function (param, value) {
+          //Check if value does not contain any digit (0-9)
+          return /^[]|[\D]+$/.test(value) ? true : 'letters';
+        },
+        onlyLetters: function (param, value) {
+          //Check if value contains only letters (a-z, A-Z)
+          return /^[]|[a-zA-ZÀÈÌÒÙàèìòùÁÉÍÓÚÝáéíóúýÂÊÎÔÛâêîôûÃÑÕãñõÄËÏÖÜäëïöüçÇßØøÅåÆæÞþÐð]+$/.test(value) ? true : 'onlyLetters';
+        },
+        digits: function (param, value) {
+          //Check if value does not contain any letter (a-z, A-Z)
+          return /^[]|[^a-zA-ZÀÈÌÒÙàèìòùÁÉÍÓÚÝáéíóúýÂÊÎÔÛâêîôûÃÑÕãñõÄËÏÖÜäëïöüçÇßØøÅåÆæÞþÐð]+$/.test(value) ? true : 'digits';
+        },
+        onlyDigits: function (param, value) {
+          //Check if value is digit (0-9)
+          return /^[]|[\d]+$/.test(value) ? true : 'onlyDigits';
+        },
+        int: function (param, value) {
+          //check if value is number and int
+          var value = parseInt(value, 10);
+          return isInt(value) ? true : value === '' ? true : 'int';
+        },
+        float: function (param, value) {
           return !isNaN(value - parseFloat(value)) ? true : 'float';
+        },
+        bool: function (param, value) {
+          //check if value is true/checked (only for checkbox)
+        },
+        date: function (param, value) {
+          //check if date conforms the ISO date format and is an existing date or 0
+
+          //if value has format XXXX-XX-XX ...
+          if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+            value = new Date(value);
+            return !isNaN(value.getTime()) ? true : 'date';
+          }
+          //if field is empty...  
+          return value.length === 0 ? true : 'date';
+        },
+        minDate: function (param, value) {
+          //check if date is after the min date passed (ISO format)
+          return new Date(value) >= new Date(param) ? true : 'minDate';
+        },
+        maxDate: function (param, value) {
+          //check if date is before the max date passed (ISO format)
+          return new Date(value) <= new Date(param) ? true : 'maxDate';
+        },
+        /*time: function (param, value) {
+          //convert time to ISO format
+          //check if time is valid ISO time
+        },
+        minTime: function (param, value) {
+          //check if time is after min time passed 
+        },
+        maxTime: function (param, value) {
+          //check if time is before max time passed 
+        },*/
+        email: function (param, value) {
+          //chekc if email is valid
+          return /^[]|([\w-\.]+@([\w\-]+\.)+[\w\-]{2,4})?$/.test(value) ? true : 'email';
+        },
+        telWithPrefix: function (param, value) {
+          //check if phone number is valid phone number with prefix
+          return /^[]|\+(?:[0-9] ?){6,14}[0-9]$/.test(value) ? true : 'telWithPrefix';
+        },
+        telNoPrefix: function (param, value) {
+          //check if phone number is valid phone number without prefix
+          return /^[]|(?:[0-9] ?){6,14}[0-9]$/.test(value) ? true : 'telNoPrefix';
+        },
+        telPrefix: function (param, value) {
+          //check if prefix is a valid prefix
+          return /^[]|\+(?:[0-9] ?){1,4}[0-9]$/.test(value) ? true : 'telPrefix';
+        },
+        password: function (param, value) {
+          //check if password is secure
+          return /^[]|(?=.*\d)(?=.*[!@#$%\^&*])(?=.*[a-z])(?=.*[A-Z]).{4,50}$/.test(value) ? true : 'password';
+        },
+        min: function (param, value) {
+          var value = parseFloat(value, 10);
+          return value >= param ? true : value === '' ? true : 'max';
+        },
+        max: function (param, value) {
+          var value = parseFloat(value, 10);
+          return value <= param ? true : value === '' ? true : 'max';
+        },
+        minLength: function (param, value) {
+          //match values higher than param or 0
+          var valueLength = value.length;
+          return valueLength >= param ? true : valueLength === 0 ? true : 'minLength';
+        },
+        maxLength: function (param, value) {
+          //match values lower than param or 0
+          var valueLength = value.length;
+          return valueLength <= param ? true : valueLength === 0 ? true : 'maxLength';
+        },
+        required: function (param, value) {
+          return value.length > 0 ? true : 'required';
+        },
+        match: function (param, value) {
+          //check if value matches other field value
+          return value === param ? true : 'match';
+        },
+        ajax: function (param, value) {
+          //
+        },
       },
-      bool: function (param, value) {
-        //check if value is true/checked (only for checkbox)
+      //-----------------------------------------------------
+      //AUTOFORMATTING
+      autoformat: {
+        trim: function (param, value) {
+          //remove whitespaces from start and end of string
+          return value.trim();
+        },
+        uppercase: function (param, value) {
+          return value.toUpperCase();
+        },
+        lowercase: function (param, value) {
+          return value.toLowerCase();
+        },
+        capitalize: function (param, value) {
+          //capitalize each word in the string
+          var valueArray = value.split(' '),
+            valueArrayLength = valueArray.length,
+            value = '';
+
+          for (var i = 0; i < valueArrayLength; i = i + 1) {
+            valueArray[i] = valueArray[i].slice(0, 1).toUpperCase() + valueArray[i].slice(1);
+            value = value + ' ' + valueArray[i];
+          }
+
+          return value;
+        },
+        capitalizeFirst: function (param, value) {
+          //capitalize first letter of string
+          return (value.slice(0, 1).toUpperCase() + value.slice(1));
+        },
+        replace: function (param, value) {
+          //param must be nested arrays or nested objects
+          //to allow muliple replacements within one function call
+        },
+        autocompleteDate: function (param, value) {
+          //autocomplete date: insert leading 0 and first tow year digits if user forgets it (e.g: transform 8/8/17 to 08/08/2017)
+        },
+        insertCharAt: function (param, value) {
+          //insert a char at a specified position
+        },
+        insertCharsEvery: function (param, value) {
+          //insert a char every x chars.
+        }
       },
-      date: function (param, value) {
-        //convert date to ISO
-        //check if date conforms the ISO date standard
-      },
-      minDate: function (param, value) {
-        //check if date is after the min date passed (ISO format)
-      },
-      maxDate: function (param, value) {
-        //check if date is before the max date passed (ISO format)
-      },
-      time: function (param, value) {
-        //convert time to ISO format
-        //check if time is valid ISO time
-      },
-      minTime: function (param, value) {
-        //check if time is after min time passed 
-      },
-      maxTime: function (param, value) {
-        //check if time is before max time passed 
-      },
-      email: function (param, value) {
-        //chekc if email is valid
-        return /^[]|([\w-\.]+@([\w\-]+\.)+[\w\-]{2,4})?$/.test(value) ? true : 'email';
-      },
-      telWithPrefix: function (param, value) {
-        //check if phone number is valid phone number with prefix
-        return /^[]|\+(?:[0-9] ?){6,14}[0-9]$/.test(value) ? true : 'telWithPrefix';
-      },
-      telNoPrefix: function (param, value) {
-        //check if phone number is valid phone number without prefix
-        return /^[]|(?:[0-9] ?){6,14}[0-9]$/.test(value) ? true : 'telNoPrefix';
-      },
-      telPrefix: function (param, value) {
-        //check if prefix is a valid prefix
-        return /^[]|\+(?:[0-9] ?){1,4}[0-9]$/.test(value) ? true : 'telPrefix';
-      },
-      password: function (param, value) {
-        //check if password is secure
-        return /^[]|(?=.*\d)(?=.*[!@#$%\^&*])(?=.*[a-z])(?=.*[A-Z]).{4,50}$/.test(value) ? true : 'password';
-      },
-      min: function (param, value) {
-        var value = parseFloat(value, 10);
-        return value >= param ? true : value === '' ? true : 'max';
-      },
-      max: function (param, value) {
-        var value = parseFloat(value, 10);
-        return value <= param ? true : value === '' ? true : 'max';
-      },
-      minLength: function (param, value) {
-        //match values higher than param or 0
-        var valueLength = value.length;
-        return valueLength >= param ? true : valueLength === 0 ? true : 'minLength';
-      },
-      maxLength: function (param, value) {
-        //match values lower than param or 0
-        var valueLength = value.length;
-        return valueLength <= param ? true : valueLength === 0 ? true : 'maxLength';
-      },
-      required: function (param, value) {
-        return value.length > 0 ? true : 'required';
+      //----------------------------------------------------------
+      //PREVENT ERRORS
+      prevent: {
+        max: function (param, value) {
+          //prevent number to be greater than max
+        },
+        min: function (param, value) {
+          //prevent number to be lower than min
+        },
+        maxLength: function (param, value) {
+          //prevent lenght of strig to exceed maximum string length accepted
+        },
+        notAllowedChars: function (param, value) {
+          //prevent not allowed charachter to be typed in the field
+        }
       }
     },
     //-------------------------------------------------------------
@@ -459,9 +548,12 @@
     successboxVisibleClass: 'field-group__successbox_visible',
   };
 
+
   $.fn[pluginName].errorMsgs = {
-    letters: 'Only letters are accepted',
-    digits: 'Only digits are accepted',
+    letters: 'Digits are not allowed in this field',
+    onlyLetters: 'Only letters are accepted',
+    digits: 'Letters are not allowed in this field',
+    onlyDigits: 'Only digits are accepted',
     int: 'Enter a whole number (e.g. 12)',
     float: 'Enter a number (e.g. 12.13 or 16)',
     bool: 'You habe to check this checkbox',
@@ -489,7 +581,7 @@
 
 
 $(window).ready(function () {
-  
+
   $('#number-test-1').ariaValidate({
     classes: {
       fieldClass: 'input-group__input',
@@ -500,10 +592,10 @@ $(window).ready(function () {
       fieldGroupErrorClass: 'field-group_error'
     },
     validate: {
-      required: true,
-      digits: true,
-      minLength: 3,
-      maxLength: 10,
+      //required: true,
+      date: true,
+      minDate: '2017-01-01',
+      maxDate: '2017-12-31'
     }
   });
 });
