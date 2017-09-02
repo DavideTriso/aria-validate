@@ -5,19 +5,17 @@
 A WAI-ARIA 1.1 compliant solution for **client-side form input validation**.
 
 
-## Introduction
+## Demo
 
-Describe mman concepts of how the plugin works here: 
+Link to demo webpage here
 
-* What is a field group
-* Wich element contains a field group
-* A field without alert and/or successbox: what happens?
-* Validation steps: Error prevention/live valiation on typing. / autoformatting on blur / validation on blur
+## Key features:
+
+List of key features here
 
 ## Settings:
 
-### Classes and default settings
-
+### Classes
 
 Name | Default | Type | Description 
 -----|---------|------|-------------
@@ -34,3 +32,15 @@ alertboxClass | field-group__alertbox string | The class used by the plugin to r
 successboxClass | field-group__successbox string | The class used by the plugin to retrive the success-box
 alertboxVisibleClass | field-group__alertbox_visible string | The class added by the plugin to the alert-box when an error occurs and an error message must be shown.
 successboxVisibleClass | field-group__successbox_visible string | The class added by the plugin to the success-box when user input is correct and a success message must be shown.
+
+### Error messages
+
+
+### Succsess message
+
+
+### Error prevention messages
+
+
+## 
+
