@@ -53,6 +53,22 @@
 
 
   /*
+   * Build strings of namespaced event
+   */
+  function namespaceEventString(eventsString, namesapce) {
+    var events = eventsString.split(' '), //split events list array
+      eventsLenght = events.length,
+      namespacedEvents = '';
+
+    for (var i = 0; i < eventsLenght; i = i + 1) {
+      namespacedEvents = namespacedEvents + ' ' + events[i] + '.' + namesapce;
+    }
+
+    return namespacedEvents;
+  }
+
+
+  /*
    * Convert date from US format (MM/DD/YYYY) or from EU format(DD/MM/YYYY) to ISO format 
    */
   function convertDateToIso(value, format, separator) {
@@ -65,6 +81,9 @@
     }
     return value;
   }
+
+
+
 
   //-----------------------------------------
   // The actual plugin constructor
@@ -82,8 +101,11 @@
     //CLASSES
     self.classes = makeSettings($.fn[pluginName].defaultClasses, self.userSettings.classes); //computet html classes used to retrive elements
 
+    //EVENTS
+    self.events = makeSettings($.fn[pluginName].defaultEvents, self.userSettings.events); //computed events to bind
+
     //REGION SETTINGS
-    self.regionSettings = makeSettings($.fn[pluginName].regionDefaultSettings, self.userSettings.regionSettings);
+    self.regionSettings = makeSettings($.fn[pluginName].defaultRegionSettings, self.userSettings.regionSettings);
 
     //VALIDATION
     self.fieldStatus = undefined; //Describes the staus of the field: undefined -> field was never focussed and validated, true -> correct input , 'errorCode' -> incorrect input
@@ -98,7 +120,7 @@
     self.selectElements();
     self.initMarkup();
     self.bindEventListeners();
-    self.retriveFieldValue();
+    self.updateFieldValue();
   };
 
 
@@ -183,59 +205,50 @@
     bindEventListeners: function () {
       /*
        * Bind event listeners to the field.
-       * Right now we just listen for blur,
-       * in future other validations methods (live error prevention and autoformatting)
-       * will also be supported
+       * and perform autofromatting and validation
        */
-      var self = this,
-        fieldTag = self.fieldTag,
-        fieldType = self.fieldType;
+      var self = this;
 
+      //Bind event on field for error prevention.
+      /*
+      self.field.on(self.events.preventErrorsOn, function () {
+        self.performPreventErrors();
+      });
+      */
 
-      //Bind blur event on field for field validation.
-      self.field.on('blur.' + pluginName, function () {
+      //Bind event on field for autoformatting.
+      self.field.on(self.events.autoformatOn, function () {
         self.performAutoformat();
+      });
+
+      //Bind event on field for field validation.
+      self.field.on(self.events.validateOn, function () {
         self.performValidation();
       });
+
 
       //trigger custom event on window for user to listen for
       win.trigger(pluginName + '.eventListenersAdded', [self]);
     },
     unbindEventListeners: function (events) {
-      var self = this,
-        events = events.split(' '), //split events list array
-        eventsLenght = events.length,
-        value = '';
+      var self = this
 
-      for (var i = 0; i < eventsLength; i = i + 1) {
-        value = value + ' ' + events[i] + '.' + pluginName;
-      }
 
-      self.field.off(value);
+      self.field.off(namespaceEventString(events, pluginName));
 
       //trigger custom event on window for user to listen for
       win.trigger(pluginName + '.eventListenersRemoved', [self]);
     },
-    retriveFieldValue: function () {
+    updateFieldValue: function () {
       var self = this;
-      /*
-       * @TODO:
-       * Retrive value for radios, select, datalist etc...
-       * Convert value to ISO format for date, time, phone etc and save to self.isoFieldValue
-       */
-      self.fieldValue = self.field.val().length > 0 ? self.field.val() : '';
 
-
+      self.fieldValue = self.field.val() || '';
 
       /*
        * Save the user input in attribute data-value.
-       * Maybe useful for some external libs
+       * Maybe useful for some external plugin
        */
       self.field.attr('data-value', self.fieldValue);
-      /*@TODO:
-       * Also save input converted in ISO format for date, time, phone and othe standard formats when possible
-       * self.field.attr('data-iso-value', convertedValueHere);
-       */
     },
     performAutoformat: function () {
       /*
@@ -248,7 +261,7 @@
       var self = this;
 
       //retrive current field value and update self.fieldValue
-      self.retriveFieldValue();
+      self.updateFieldValue();
 
 
       for (var key in self.autoformat) {
@@ -268,7 +281,7 @@
       var self = this;
 
       //retrive current field value and update self.fieldValue
-      self.retriveFieldValue();
+      self.updateFieldValue();
 
 
       //loop through all validation functions
@@ -372,6 +385,9 @@
       var self = this;
 
       switch (methodName) {
+        case 'updateFieldValue':
+          self.updateFieldValue();
+          break;
         case 'validate':
           self.performValidation();
           break;
@@ -412,6 +428,8 @@
     });
   };
 
+
+
   $.fn[pluginName].defaultClasses = {
     fieldGroupIdPrefix: 'field-group--',
     fieldGroupValidClass: 'field-group_valid',
@@ -428,7 +446,13 @@
     successboxVisibleClass: 'field-group__successbox_visible',
   };
 
-  $.fn[pluginName].regionDefaultSettings = {
+  $.fn[pluginName].defaultEvents = {
+    //preventErrorsOn: 'input',
+    autoformatOn: 'blur',
+    validateOn: 'blur'
+  };
+
+  $.fn[pluginName].defaultRegionSettings = {
     dateFormat: 'eu',
     dateSeparator: '/',
     //timeSeparator: ':',
@@ -467,9 +491,12 @@
 
   $.fn[pluginName].defaultSuccessMsg = 'Perfect! You told us exactly what we wanted to know!';
 
-  /*$.fn[pluginName].defaultErrorPrevenstionMsgs = {
+  /*$.fn[pluginName].defaultErrorPreventionMsgs = {
     //
   }*/
+
+
+
 
   //------------------------------------------------------
   //VALIDATION
@@ -595,7 +622,7 @@
     },
     match: function (fieldValue, param) {
       //check if value matches other field value
-      return fieldValue === param ? true : 'match';
+      return fieldValue === param.val() ? true : 'match';
     },
     customRegex: function (fieldValue, param) {
       return param.test(fieldValue) ? true : 'customRegex';
@@ -671,7 +698,6 @@
        *        replaceWith: '/',
        *      } 
        *     ]
-
        */
       if (Array.isArray(param) && param.length > 0) {
         var paramLenght = param.length;
@@ -768,11 +794,16 @@ $(window).ready(function () {
       fieldGroupValidClass: 'field-group_valid',
       fieldGroupErrorClass: 'field-group_error'
     },
+    events: {
+      //preventErrorsOn: 'input',
+      autoformatOn: 'input',
+      validateOn: 'blur'
+    },
     preventErrors: {
       //configuration
     },
     autoformat: {
-      trim: true
+      uppercase: true
     },
     validate: {
       required: true,
