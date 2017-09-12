@@ -1,108 +1,171 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8" />
-  <title>Form validation example</title>
-  <style>
-    body {
-      color: #fff;
-      background-color: black;
-    }
-    
-    .input-group {
-      padding: 30px 20px;
-      background-color: #3b3b3b;
-      margin-bottom: 10px;
-    }
-    
-    .input-block {
-      margin: 10px 0;
-      padding: 10px;
-      background-color: #4b4b4b;
-    }
-    
-    label {
-      display: block;
-      margin-bottom: 7px;
-      margin-top: 10px
-    }
-    
-    .cs-security-level {
-      width: 8rem;
-      height: 1rem;
-      border: #868686;
-      background-color: #fff;
-      margin-top: 0.5rem;
-    }
-    
-    .cs-security-level > div {
-      height: 1rem;
-      background-color: blue;
-    }
-    
-    .cs-security-level[data-security-level='1'] > div {
-      height: 1rem;
-      width: 1rem;
-    }
-    
-    .cs-security-level[data-security-level='2'] > div {
-      height: 1rem;
-      width: 2rem;
-    }
-    
-    .cs-security-level[data-security-level='3'] > div {
-      height: 1rem;
-      width: 3rem;
-    }
-    
-    .cs-security-level[data-security-level='4'] > div {
-      height: 1rem;
-      width: 4rem;
-    }
-    
-    .cs-security-level[data-security-level='5'] > div {
-      height: 1rem;
-      width: 5rem;
-    }
-    
-    .cs-security-level[data-security-level='6'] > div {
-      height: 1rem;
-      width: 6rem;
-    }
-    
-    .cs-security-level[data-security-level='7'] > div {
-      height: 1rem;
-      width: 7rem;
-    }
-    
-    .cs-security-level[data-security-level='8'] > div {
-      height: 1rem;
-      width: 8rem;
-    }
+    <meta charset="utf-8" />
+    <title>Form validation example</title>
+    <style>
+        body {
+            color: #fff;
+            background-color: black;
+        }
 
-  </style>
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="aria-validate.js"></script>
+        .input-group {
+            padding: 30px 20px;
+            background-color: #3b3b3b;
+            margin-bottom: 10px;
+        }
+
+        .input-block {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #4b4b4b;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            margin-top: 10px;
+        }
+
+        .cs-security-level {
+            width: 8rem;
+            height: 1rem;
+            border: #868686;
+            background-color: #fff;
+            margin-top: 0.5rem;
+        }
+
+            .cs-security-level > div {
+                height: 1rem;
+                background-color: blue;
+            }
+
+            .cs-security-level[data-security-level='1'] > div {
+                height: 1rem;
+                width: 1rem;
+            }
+
+            .cs-security-level[data-security-level='2'] > div {
+                height: 1rem;
+                width: 2rem;
+            }
+
+            .cs-security-level[data-security-level='3'] > div {
+                height: 1rem;
+                width: 3rem;
+            }
+
+            .cs-security-level[data-security-level='4'] > div {
+                height: 1rem;
+                width: 4rem;
+            }
+
+            .cs-security-level[data-security-level='5'] > div {
+                height: 1rem;
+                width: 5rem;
+            }
+
+            .cs-security-level[data-security-level='6'] > div {
+                height: 1rem;
+                width: 6rem;
+            }
+
+            .cs-security-level[data-security-level='7'] > div {
+                height: 1rem;
+                width: 7rem;
+            }
+
+            .cs-security-level[data-security-level='8'] > div {
+                height: 1rem;
+                width: 8rem;
+            }
+    </style>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="aria-validate.js"></script>
 </head>
-
 <body>
-  <form class="cs-validate-form" action="." method="post" id="demo-form">
-    <input type="text" name="keycode" id="keycode" />
+    <form class="cs-validate-form" action="." method="post" id="demo-form">
+        <input type="text" name="keycode" id="keycode" />
+
+        <div class="input-group" id="date">
+            <label class="input-group__label" for="date">Date</label>
+            <input type="text" class="input-group__input" id="date" name="date" placeholder="dd/mm/yyyy"/>
+            <div class="input-group__alertbox">
+            </div>
+            <div class="input-group__successbox">
+            </div>
+        </div>
 
 
-    <h2>Number &#9773;</h2>
-    <div class="input-group" id="number-test-1">
-      <label class="input-group__label" for="number-test">Number</label>
-      <input type="text" class="input-group__input" id="number-test" name="number-test" />
-      <div class="input-group__alertbox">
-      </div>
-      <div class="input-group__successbox">
-      </div>
-    </div>
+
+        <div class="input-group" id="text">
+            <label class="input-group__label" for="text">field 1</label>
+            <input type="text" class="input-group__input" id="text" name="text" />
+            <div class="input-group__alertbox">
+            </div>
+            <div class="input-group__successbox">
+            </div>
+        </div>
+
+        <div class="input-group" id="checkbox">
+            <label class="input-group__label" for="number-test">Checkbox</label>
+            <input type="checkbox" class="input-group__input" />
+            <div class="input-group__alertbox">
+            </div>
+            <div class="input-group__successbox">
+            </div>
+        </div>
 
 
-  </form>
+        <!--<div class="input-group" id="radios">
+            <label class="input-group__label" for="radio1">Radio 1</label>
+            <input type="radio" class="input-group__input" name="radio1" id="radio1" value="1" />
+            <label class="input-group__label" for="radio2">Radio 2</label>
+            <input type="radio" class="input-group__input" name="radio2" id="radio2"  value="2" />
+            <label class="input-group__label" for="radio3">Radio 3</label>
+            <input type="radio" class="input-group__input" name="radio3" id="radio3" value="3" />
+            <div class="input-group__alertbox">
+            </div>
+            <div class="input-group__successbox">
+            </div>
+        </div>-->
+
+
+        <div class="input-group" id="select">
+            <label class="input-group__label" for="number-test">Select</label>
+            <select class="input-group__input" required>
+                <option value="">Choose one option</option>
+                <option value="1">Option 1</option>
+                <option value="2">Option 2</option>
+                <option value="3">Option 3</option>
+                <option value="4">Option 4</option>
+            </select>
+            <div class="input-group__alertbox">
+            </div>
+            <div class="input-group__successbox">
+            </div>
+        </div>
+
+        <div class="input-group" id="range">
+            <label class="input-group__label" for="number-test">Checkbox</label>
+            <input type="range" class="input-group__input" min="0" max="100"/>
+            <div class="input-group__alertbox">
+            </div>
+            <div class="input-group__successbox">
+            </div>
+        </div>
+        
+        <div class="input-group" id="ccard">
+            <label class="input-group__label" for="number-test">CCard</label>
+            <input type="text" class="input-group__input" />
+            <div class="input-group__alertbox">
+            </div>
+            <div class="input-group__successbox">
+            </div>
+        </div>
+
+
+
+    </form>
 </body>
-
 </html>
