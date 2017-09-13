@@ -1,0 +1,221 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Form validation example</title>
+    <style>
+        body {
+            max-width: 400px;
+            margin: auto;
+            font-family: sans-serif;
+            box-sizing: border-box;
+        }
+
+        .field-group {
+            padding: 1rem;
+            margin: 1rem;
+            background-color: #ccc;
+        }
+
+        .field-group__label {
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .field-group__field {
+            width: 100%;
+            padding: 0.4rem;
+            box-sizing: border-box;
+        }
+        .field-group__alertbox,
+        .field-group__successbox {
+            margin: 0.5rem 0;
+            padding: 0.4rem;
+            display: none;
+            border-radius: 0.2rem;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .field-group__alertbox_visible,
+        .field-group__successbox_visible {
+            display: block;
+        }
+
+        .field-group__alertbox_visible {
+            background-color: #bd0e0e;
+        }
+        .field-group__successbox_visible {
+            background-color: #33a321;
+        }
+    </style>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="aria-validate.js"></script>
+</head>
+<body>
+    <div class="field-group" id="date">
+        <label class="field-group__label" for="date-field">Date</label>
+        <input type="text" class="field-group__field" id="date-field" name="date-field" placeholder="dd/mm/yyyy" />
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>
+
+    <div class="field-group" id="text1">
+        <label class="field-group__label" for="text1-field">Text</label>
+        <input type="text" class="field-group__field" id="text1-field" name="text1-field" />
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>
+
+
+   
+
+    <div class="field-group" id="email">
+        <label class="field-group__label" for="email-field">Email</label>
+        <input type="email" class="field-group__field" id="email-field" name="email-field" />
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>
+
+    <div class="field-group" id="checkbox">
+        <label class="field-group__label" for="number-test">Checkbox</label>
+        <input type="checkbox" class="field-group__field" />
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>
+
+
+    <!--<div class="field-group" id="radios">
+        <label class="field-group__label" for="radio1">Radio 1</label>
+        <input type="radio" class="field-group__field" name="radio1" id="radio1" value="1" />
+        <label class="field-group__label" for="radio2">Radio 2</label>
+        <input type="radio" class="field-group__field" name="radio2" id="radio2"  value="2" />
+        <label class="field-group__label" for="radio3">Radio 3</label>
+        <input type="radio" class="field-group__field" name="radio3" id="radio3" value="3" />
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>-->
+
+
+    <div class="field-group" id="select">
+        <label class="field-group__label" for="number-test">Select</label>
+        <select class="field-group__field" required>
+            <option value="">Choose one option</option>
+            <option value="1">Option 1</option>
+            <option value="2">Option 2</option>
+            <option value="3">Option 3</option>
+            <option value="4">Option 4</option>
+        </select>
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>
+
+    <div class="field-group" id="range">
+        <label class="field-group__label" for="number-test">Range</label>
+        <input type="range" class="field-group__field" min="0" max="100" />
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>
+
+
+    <div class="field-group" id="phone1">
+        <label class="field-group__label" for="phone1-field">Phone</label>
+        <input type="text" class="field-group__field" id="phone1-field" name="phone1-field" />
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>
+
+    <div class="field-group" id="prefix">
+        <label class="field-group__label" for="prefix-field">Prefix</label>
+        <input type="text" class="field-group__field" id="prefix-field" name="prefix-field" />
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>
+
+    <div class="field-group" id="password">
+        <label class="field-group__label" for="password-field">Password</label>
+        <input type="text" class="field-group__field" id="password-field" name="password-field" />
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>
+
+
+    <div class="field-group" id="match">
+        <label class="field-group__label" for="match-field">Match</label>
+        <input type="text" class="field-group__field" id="match-field" name="match-field" />
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>
+
+    <div class="field-group" id="int">
+        <label class="field-group__label" for="int-field">Int</label>
+        <input type="number" class="field-group__field" id="int-field" name="int-field" />
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>
+
+
+    <div class="field-group" id="float">
+        <label class="field-group__label" for="float-field">Float</label>
+        <input type="text" class="field-group__field" id="float-field" name="float-field" />
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>
+
+    <div class="field-group" id="custom-regex">
+        <label class="field-group__label" for="custom-regex-field">Custom regex (/^[abc]{0,10}?$/)</label>
+        <input type="text" class="field-group__field" id="custom-regex-field" name="custom-regex-field" />
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>
+
+
+    <div class="field-group" id="tokens">
+        <label class="field-group__label" for="tokens-field">Tokens (Choose between: Chrome, Firefox, Safari, Opera)</label>
+        <input type="text" class="field-group__field" id="tokens-field" name="tokens-field" />
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>
+
+    <div class="field-group" id="ajax">
+        <label class="field-group__label" for="ajax-field">Ajax</label>
+        <input type="text" class="field-group__field" id="ajax-field" name="ajax-field" />
+        <div class="field-group__alertbox">
+        </div>
+        <div class="field-group__successbox">
+        </div>
+    </div>
+
+
+</body>
+</html>

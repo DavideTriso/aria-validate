@@ -870,3 +870,282 @@
     };
     */
 }(jQuery, window)));
+
+
+$(window).ready(function () {
+    $('#date').ariaValidate({
+        behaviour: [
+            {
+                event: 'input',
+                autoformat: {
+                    trim: true,
+                    replace: [
+                         {
+                             searchFor: /[-]/g,
+                             replaceWith: '/',
+                         },
+                         {
+                             searchFor: /[.]/g,
+                             replaceWith: '/',
+                         },
+
+                    ],
+                },
+                validate: {
+                    digits: true
+                }
+            },
+            {
+                event: 'blur',
+                main: true,
+                autoformat: {
+                    replace: [
+                         {
+                             searchFor: /[-]/g,
+                             replaceWith: '/',
+                         },
+                         {
+                             searchFor: /[.]/g,
+                             replaceWith: '/',
+                         },
+
+                    ],
+                    autocompleteDate: '20'
+                },
+                validate: {
+                    required: true,
+                    date: true
+                }
+            }
+        ],
+    });
+
+    $('#text1').ariaValidate({
+        behaviour: [
+            {
+                event: 'input',
+                autoformat: {
+                    capitalizeFirst: true
+                },
+                validate: {
+                    required: true,
+                    letters: true,
+                }
+            },
+            {
+                event: 'blur',
+                main: true,
+                validate: {
+                    required: true,
+                    letters: true,
+                    minLength: 10,
+                    maxLength: 15
+                }
+            }
+        ],
+        errorMsgs: {
+            maxLength: 'Maximum length is 15.',
+            minLength: 'Minimum length is 10'
+        }
+    });
+
+    $('#email').ariaValidate({
+        behaviour: [
+            {
+                event: 'input',
+                autoformat: {
+                    lowercase: true
+                }
+            },
+            {
+                event: 'blur',
+                autoformat: {
+                    lowercase: true
+                },
+                validate: {
+                    email: true
+                }
+            }
+        ]
+    });
+
+    $('#checkbox').ariaValidate({
+        behaviour: [
+            {
+                event: 'change',
+                validate: {
+                    bool: true
+                }
+            }
+        ]
+    });
+
+    $('#select').ariaValidate({
+        behaviour: [
+            {
+                event: 'change',
+                validate: {
+                    required: true
+                }
+            }
+        ]
+    });
+
+    $('#range').ariaValidate({
+        behaviour: [
+            {
+                event: 'input change',
+                validate: {
+                    min: 10,
+                    max: 90
+                }
+            }
+        ]
+    });
+
+    $('#phone1').ariaValidate({
+        behaviour: [
+            {
+                event: 'input',
+                validate: {
+                    digits: true
+                }
+            },
+            {
+                event: 'blur',
+                main: true,
+                autoformat: {
+                    replace: {
+                        searchFor: /^00/,
+                        replaceWith: '+',
+                    }
+                },
+                validate: {
+                    required: true,
+                    telWithPrefix: true
+                }
+            }
+        ]
+    });
+
+    $('#prefix').ariaValidate({
+        behaviour: [
+            {
+                event: 'input',
+                autoformat: {
+                    replace: {
+                        searchFor: /^00/,
+                        replaceWith: '+',
+                    }
+                },
+                validate: {
+                    required: true,
+                    digits: true
+                }
+            },
+            {
+                event: 'blur',
+                main: true,
+                validate: {
+                    required: true,
+                    telPrefix: true
+                }
+            }
+        ]
+    });
+
+    $('#password').ariaValidate({
+        behaviour: [
+            {
+                event: 'blur',
+                main: true,
+                validate: {
+                    required: true,
+                    password: true,
+                    matchMain: $('#match-field')
+                }
+            }
+        ]
+    });
+
+    $('#match').ariaValidate({
+        behaviour: [
+            {
+                event: 'input change',
+                main: true,
+                validate: {
+                    match: $('#password-field')
+                }
+            }
+        ]
+    });
+
+    $('#int').ariaValidate({
+        behaviour: [
+            {
+                event: 'change input',
+                validate: {
+                    required: true,
+                    int: true,
+                    min: 1,
+                    max: 100
+                }
+            }
+        ]
+    });
+
+    $('#float').ariaValidate({
+        behaviour: [
+            {
+                event: 'change input',
+                main: true,
+                validate: {
+                    required: true,
+                    float: true,
+                    min: 1,
+                    max: 100
+                }
+            }
+        ]
+    });
+
+    $('#custom-regex').ariaValidate({
+        behaviour: [
+            {
+                event: 'blur',
+                main: true,
+                validate: {
+                    required: true,
+                    customRegex: /^[abc]{0,10}?$/,
+                    minLength: 1,
+                    maxLength: 20
+                }
+            }
+        ]
+    });
+
+
+    $('#tokens').ariaValidate({
+        behaviour: [
+            {
+                event: 'input',
+                autoformat: {
+                    capitalizeFirst: true,
+                    trim: true
+                },
+                validate: {
+                    required: true,
+                    onlyLetters: true
+                }
+            },
+            {
+                event: 'blur',
+                main: true,
+                validate: {
+                    required: true,
+                    tokens: ['Chrome', 'Safari', 'Firefox', 'Opera']
+                }
+            }
+        ]
+    });
+});
