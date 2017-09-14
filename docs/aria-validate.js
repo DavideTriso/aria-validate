@@ -16,6 +16,7 @@
           aInv: 'aria-invalid',
           aOw: 'aria-owns',
           req: 'required',
+          dV: 'data-value',
           t: 'true',
           f: 'false'
       },
@@ -72,17 +73,87 @@
      * Convert date from US format (MM/DD/YYYY) or from EU format(DD/MM/YYYY) to ISO format 
      */
     function convertDateToIso(value, format, separator) {
+        /*
+        * Check if date is already in ISO format or is empty,
+        * and return unchanged value if true.
+        */
+        if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+            return value;
+        }
+
+        /*
+         * Date is not in ISO format and is not empty.
+         * We have to try to convert it in ISO format
+         * 1 - Split in array
+         * 2 - Check if array length is 3 and check the length of each entry (should be: 2,2,4). 
+         * 2 - Reconstruct date by repositioning day, month and year based on regioin settings and change date separator (-)
+         */
         value = value.split(separator);
 
-        if (format === 'eu') {
-            value = value[2] + '-' + value[1] + '-' + value[0];
-        } else if (format === 'us') {
-            value = value[2] + '-' + value[0] + '-' + value[1];
+        if (value.length === 3 && value[0].length === 2 && value[1].length === 2 && value[2].length === 4) {
+            if (format === 'eu') {
+                value = value[2] + '-' + value[1] + '-' + value[0];
+            } else if (format === 'us') {
+                value = value[2] + '-' + value[0] + '-' + value[1];
+            }
+            return value;
         }
-        return value;
+
+        // if it is not possible to convert the date, then return false.
+        return false;
     }
 
+    /*
+     * Calculate date with or without offset starting from an ISO-formatted date and an offset (optional)
+     * (for maxDate and minDate validation functions)
+     * @TODO: TEST!!
+     */
+    function calculateDate(param, dateFormat, dateSeparator) {
+        if (Array.isArray(param)) {
+            var offset = param[1];
+            param = param[0].attr(a.dV) || param[0].val();
+            param = convertDateToIso(param, dateFormat, dateSeparator);
+            param = new Date(param);
+            param = param.setDate(param.getDate() + offset);
+            return param;
+        }
 
+        param = param.attr(a.dV) || param.val();
+        return convertDateToIso(param, regionSettings.dateFormat, regionSettings.dateSeparator);
+    }
+
+    /*
+     * Calculate minLenght and maxLenght with or without offset starting from object or array
+     * (for maxLength and minLength validation functions)
+     * @TODO: TEST!!
+     */
+    function calculateLength(param) {
+        if (Array.isArray(param)) {
+            var offset = param[1];
+            param = param[0].attr(a.dV).length || param[0].val().length;
+            return param + offset;
+        }
+
+        return param = param.attr(a.dV) || param.val();
+    }
+
+    /*
+     * Calculate min and max with or without offset starting from object or array
+     * (for max and min validation functions)
+     * @TODO: TEST!!
+     */
+    function calculateInt(param) {
+        if (Array.isArray(param)) {
+            var offset = param[1];
+            param = param[0].attr(a.dV) || param[0].val();
+            return parseFloat(param, 10) + offset;
+        }
+
+        param = param.attr(a.dV) || param.val();
+        return parseFloat(param, 10);
+    }
+    
+    
     //-----------------------------------------
     // The actual plugin constructor
     function AriaValidate(element, userSettings) {
@@ -105,8 +176,6 @@
         self.fieldValue = undefined; //The value of the field
         self.errorMsgs = makeSettings($.fn[pluginName].defaultErrorMsgs, self.userSettings.errorMsgs); //computed error messages settings for this field;
         self.successMsg = self.userSettings.successMsg ? self.userSettings.successMsg : $.fn[pluginName].defaultSuccessMsg; //Success message for this field
-
-
 
         //-----------------------------------
         //Initialise field
@@ -196,9 +265,6 @@
             count = count + 1;
         },
         addBehaviour: function () {
-
-
-            //Bind event listeners to the field.
             var self = this,
                 behaviour = self.behaviour,
                 behaviourLength = behaviour.length;
@@ -208,22 +274,18 @@
             }
 
             //trigger custom event on window for user to listen for
-            win.trigger(pluginName + '.eventListenersAdded', [self]);
+            win.trigger(pluginName + '.behaviourAdded', [self]);
         },
         bindEventListeners: function (currentBehaviour) {
             var self = this,
                 events = namespaceEventString(currentBehaviour.event, pluginName),
-                preventErrorsRules = currentBehaviour.preventErrors || false, 
                 autoformatRules = currentBehaviour.autoformat || false,
                 validateRules = currentBehaviour.validate || false,
-                main = currentBehaviour.main || false; //check if current behaviour is labelled as 'main behaviour'
+                main = currentBehaviour.main || false; //check if current behaviour is set as 'main behaviour'
 
 
             //Bind event listeners to field 
             self.field.on(events, function () {
-                if (preventErrorsRules) {
-                    self.performPreventErrors(preventErrorsRules);
-                }
                 if (autoformatRules) {
                     self.performAutoformat(autoformatRules);
                 }
@@ -234,7 +296,6 @@
         },
         unbindEventListeners: function (events) {
             var self = this
-
 
             self.field.off(namespaceEventString(events, pluginName));
 
@@ -253,21 +314,7 @@
              * Save the user input in attribute data-value.
              * Maybe useful for some external plugin
              */
-            self.field.attr('data-value', self.fieldValue);
-        },
-        performPreventErrors: function (preventErrorsRules) {
-            /*
-             * Call functions to prevent errors on field
-             * 
-             */
-            var self = this;
-
-            //retrive current field value and update self.fieldValue
-            self.updateFieldValue();
-
-
-            //@TODO 
-            console.log('preventError');
+            self.field.attr(a.dV, self.fieldValue);
         },
         performAutoformat: function (autoformatRules) {
             /*
@@ -443,7 +490,7 @@
             //trigger custom event on window for user to listen for
             win.trigger(pluginName + '.resetted', [self]);
         },
-
+        //@TODO: destroy (unbind event listeners + remove jQuery.data)
         //-------------------------------------------------------------
         //Method caller
         //-------------------------------------------------------------
@@ -454,19 +501,10 @@
                 case 'updateFieldValue':
                     self.updateFieldValue();
                     break;
-                case 'validate':
-                    self.performValidation();
-                    break;
-                case 'autoformat':
-                    self.performAutoformat();
-                    break;
-                case 'invalidateField':
-                    self.invalidateFieldGroup();
-                    break;
-                case 'validateField':
-                    self.validateFieldGroup();
-                    break;
                 case 'unbindEventListeners':
+                    self.unbindEventListeners(methodArg);
+                    break;
+                case 'destroy':
                     self.unbindEventListeners(methodArg);
                     break;
             }
@@ -494,7 +532,6 @@
         });
     };
 
-
     $.fn[pluginName].defaultClasses = {
         fieldGroupIdPrefix: 'field-group--',
         fieldGroupValidClass: 'field-group_valid',
@@ -516,11 +553,7 @@
         dateSeparator: '/',
         //timeSeparator: ':',
         decimalSeparator: ','
-    }
-
-    /*$.fn[pluginName].defaultErrorPreventionMsgs = {
-        //
-    }*/
+    };
 
     $.fn[pluginName].defaultErrorMsgs = {
         letters: 'Digits are not allowed in this field',
@@ -550,7 +583,7 @@
         match: 'No match',
         customRegex: 'Regex match returned "false"',
         ajax: 'server says no!',
-        ajaxError: 'Server connection error'
+        ajaxError: 'Server error.'
     };
 
     $.fn[pluginName].defaultSuccessMsg = 'Perfect! You told us exactly what we wanted to know!';
@@ -620,29 +653,57 @@
             //check if date has ISO date format and is an existing date or 0
             fieldValue = convertDateToIso(fieldValue, regionSettings.dateFormat, regionSettings.dateSeparator);
 
-            if (/^\d{4}-\d{2}-\d{2}$/.test(fieldValue)) {
+            //if convertDateToIso returned false, then the date is obviously not valid, throw error
+            if (fieldValue === false) {
+                return 'date';
+            }
+
+            //if fieldValue is not empty ('') we can proceed and validate it
+            if (fieldValue !== '') {
                 var value = new Date(fieldValue);
                 return !isNaN(value.getTime()) ? true : 'date';
             }
-            //if field is empty...  
-            return fieldValue === '' ? true : 'date';
+
+            //if fieldValue is empty return true
+            return true;
         },
         minDate: function (fieldValue, param, regionSettings) {
+            if (fieldValue === '') {
+                return true;
+            }
+
+            /*
+            * Bind value of param to other object:
+            * If param is an object, we must deduce the value from the passed field
+            * by retriving the data-val attribute or the value of the field
+            */
+            if (typeof param === 'object') {
+                param = calculateDate(param, regionSettings.dateFormat, regionSettings.dateSeparator);
+            }
+
             //check if date is after the min date passed (ISO format)
             fieldValue = convertDateToIso(fieldValue, regionSettings.dateFormat, regionSettings.dateSeparator);
 
-            if (fieldValue === '') {
-                return true;
-            }
             return new Date(fieldValue) >= new Date(param) ? true : 'minDate';
         },
         maxDate: function (fieldValue, param, regionSettings) {
-            //check if date is before the max date passed (ISO format)
-            fieldValue = convertDateToIso(fieldValue, regionSettings.dateFormat, regionSettings.dateSeparator);
-
             if (fieldValue === '') {
                 return true;
             }
+
+            /*
+            * Bind value of param to other object:
+            * If param is an object, we must deduce the value from the passed field
+            * by retriving the data-val attribute or the value of the field
+            */
+            //@TODO Aggiungere offset di giorni 
+            if (typeof param === 'object') {
+                param = calculateDate(param, regionSettings.dateFormat, regionSettings.dateSeparator);
+            }
+
+            //check if date is before the max date passed (ISO format)
+            fieldValue = convertDateToIso(fieldValue, regionSettings.dateFormat, regionSettings.dateSeparator);
+
             return new Date(fieldValue) <= new Date(param) ? true : 'maxDate';
         },
         /*time: function (fieldValue, param) {
@@ -672,23 +733,60 @@
             return /^(\+(?:[0-9] ?){1,4}[0-9])?$/.test(fieldValue) ? true : 'telPrefix';
         },
         password: function (fieldValue) {
+            //@TODO Check min password length
             //check if password is secure
             return /^((?=.*\d)(?=.*[!@#$%\^&*])(?=.*[a-z])(?=.*[A-Z]).{4,50})?$/.test(fieldValue) ? true : 'password';
         },
         min: function (fieldValue, param) {
+            /*
+            * Bind value of param to other object:
+            * If param is an object, we must deduce the value from the passed field
+            * by retriving the data-val attribute or the value of the field
+            */
+            if (typeof param === 'object') {
+                param = calculateInt(param);
+            }
+
             var value = parseFloat(fieldValue, 10);
             return value >= param ? true : value === '' ? true : 'min';
         },
         max: function (fieldValue, param) {
+            /*
+            * Bind value of param to other object:
+            * If param is an object, we must deduce the value from the passed field
+            * by retriving the data-val attribute or the value of the field
+            */
+            if (typeof param === 'object') {
+                param = calculateInt(param);
+            }
+
             var value = parseFloat(fieldValue, 10);
             return value <= param ? true : value === '' ? true : 'max';
         },
         minLength: function (fieldValue, param) {
+            /*
+            * Bind value of param to other object:
+            * If param is an object, we must deduce the value from the passed field
+            * by retriving the data-val attribute or the value of the field
+            */
+            if (typeof param === 'object') {
+                param = calculateLength(param);
+            }
+
             //match values higher than param or 0
             var valueLength = fieldValue.length;
             return valueLength >= param ? true : valueLength === 0 ? true : 'minLength';
         },
         maxLength: function (fieldValue, param) {
+            /*
+             * Bind value of param to other object:
+             * If param is an object, we must deduce the value from the passed field
+             * by retriving the data-val attribute or the value of the field
+             */
+            if (typeof param === 'object') {
+                param = calculateLength(param);
+            }
+
             //match values lower than param or 0
             var valueLength = fieldValue.length;
             return valueLength <= param ? true : valueLength === 0 ? true : 'maxLength';
@@ -697,6 +795,12 @@
             return fieldValue.length > 0 ? true : 'required';
         },
         tokens: function (fieldValue, param) {
+
+            //@TODO Creare collezione live passando oggetto
+            /*
+             * Check if value entered corresponds to one value from a given list (token)
+             * param is an array of options/possible values
+             */
             var paramLength = param.length;
 
             for (var i = 0; i < paramLength; i = i + 1) {
@@ -712,7 +816,7 @@
             var matchVal = param.val();
 
             if (matchVal !== '') {
-                return fieldValue === param.val() ? true : 'match';
+                return fieldValue === matchVal ? true : 'match';
             }
             return true;
         },
@@ -739,7 +843,6 @@
             });
         }
     };
-
 
     //-----------------------------------------------------
     //AUTOFORMATTING
@@ -818,6 +921,10 @@
             return fieldValue;
         },
         autocompleteDate: function (fieldValue, param, regionSettings) {
+            if (param === '' || param === undefined) {
+                param = '20'; //21st. century by default, if author does not pass a value
+            }
+
             if (fieldValue === '') {
                 return fieldValue;
             }
@@ -847,30 +954,16 @@
             }
 
             return day + dateSeparator + month + dateSeparator + year;
-        }
+        },
+        /*insertCharAt: function () {
+            //@TODO
+        },
+        insertCharEvery: function () {
+            //@TODO
+        }*/
     };
 
-
-    //----------------------------------------------------------
-    //ERRORS PREVENTION
-    /* For future versions of plugin
-    $.fn[pluginName].preventErrorsFunctions = {
-        max: function (fieldValue, param) {
-            //prevent number to be greater than max
-        },
-        min: function (fieldValue, param) {
-            //prevent number to be lower than min
-        },
-        maxLength: function (fieldValue, param) {
-            //prevent lenght of strig to exceed maximum string length accepted
-        },
-        notAllowedChars: function (fieldValue, param) {
-            //prevent not allowed charachter to be typed in the field
-        }
-    };
-    */
 }(jQuery, window)));
-
 
 $(window).ready(function () {
     $('#date').ariaValidate({
@@ -888,7 +981,6 @@ $(window).ready(function () {
                              searchFor: /[.]/g,
                              replaceWith: '/',
                          },
-
                     ],
                 },
                 validate: {
@@ -914,7 +1006,103 @@ $(window).ready(function () {
                 },
                 validate: {
                     required: true,
-                    date: true
+                    date: true,
+                    //@TODO: provare a chiamare due volte minDate o maxDate, una volta con valore standard, altra con valore live da altro campo
+                }
+            }
+        ],
+    });
+
+    $('#date2').ariaValidate({
+        behaviour: [
+            {
+                event: 'input',
+                autoformat: {
+                    trim: true,
+                    replace: [
+                         {
+                             searchFor: /[-]/g,
+                             replaceWith: '/',
+                         },
+                         {
+                             searchFor: /[.]/g,
+                             replaceWith: '/',
+                         },
+                    ],
+                },
+                validate: {
+                    digits: true
+                }
+            },
+            {
+                event: 'blur',
+                main: true,
+                autoformat: {
+                    replace: [
+                         {
+                             searchFor: /[-]/g,
+                             replaceWith: '/',
+                         },
+                         {
+                             searchFor: /[.]/g,
+                             replaceWith: '/',
+                         },
+
+                    ],
+                    autocompleteDate: '20'
+                },
+                validate: {
+                    required: true,
+                    date: true,
+                    minDate: '2017-09-14'
+                }
+            }
+        ],
+    });
+
+    $('#date3').ariaValidate({
+        behaviour: [
+            {
+                event: 'input',
+                autoformat: {
+                    trim: true,
+                    replace: [
+                         {
+                             searchFor: /[-]/g,
+                             replaceWith: '/',
+                         },
+                         {
+                             searchFor: /[.]/g,
+                             replaceWith: '/',
+                         },
+                    ],
+                },
+                validate: {
+                    digits: true
+                }
+            },
+            {
+                event: 'blur',
+                main: true,
+                autoformat: {
+                    replace: [
+                         {
+                             searchFor: /[-]/g,
+                             replaceWith: '/',
+                         },
+                         {
+                             searchFor: /[.]/g,
+                             replaceWith: '/',
+                         },
+
+                    ],
+                    autocompleteDate: '20'
+                },
+                validate: {
+                    required: true,
+                    date: true,
+                    minDate: [$('#date2-field'), 1],
+                    maxDate: [$('#date2-field'), 90]
                 }
             }
         ],
@@ -1123,7 +1311,6 @@ $(window).ready(function () {
             }
         ]
     });
-
 
     $('#tokens').ariaValidate({
         behaviour: [
