@@ -1007,7 +1007,7 @@ $(window).ready(function () {
                 validate: {
                     required: true,
                     date: true,
-                    //@TODO: provare a chiamare due volte minDate o maxDate, una volta con valore standard, altra con valore live da altro campo
+
                 }
             }
         ],
