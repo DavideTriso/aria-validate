@@ -1,0 +1,18 @@
+@mixin fluidLength ($breakpointMin, $breakpointMax, $lengthMin, $lengthMax, $cssProperty, $elementClassName) {
+  $bMin: pxToRem($breakpointMin, $htmlElementFontSize);
+  $bMax: pxToRem($breakpointMax, $htmlElementFontSize);
+  
+  #{$elementClassName} {
+    #{$cssProperty}: $lengthMin;
+  } 
+  @media screen and (min-width: $breakpointMin) {
+    #{$elementClassName} {
+      #{$cssProperty}: linearInterpolation(($bMin: $lengthMin, $bMax: $lengthMax));
+    }
+  }
+  @media screen and (min-width: $breakpointMax) {
+    #{$elementClassName} {
+      #{$cssProperty}: $lengthMax;
+    }
+  }
+}  

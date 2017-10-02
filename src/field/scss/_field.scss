@@ -1,0 +1,158 @@
+//---------------------------------
+//BLOCK
+.field-group {
+  @extend %position-relative;
+  @extend %width-100;
+}
+//
+//---------------------------------
+//LABEL AND FAKE LABEL
+.field-group__label {
+  @extend %display-block;
+  @extend %r-mb_2;
+}
+.field-group__fake-label {
+  @extend %r-pl_3;
+}
+//
+//---------------------------------
+//FIELD
+.field-group__field {
+  @extend %border-2;
+  @extend %display-block;
+  @extend %r-ptb_2;
+  @extend %r-plr_4;
+  @extend %width-100;
+  &:focus {
+    @extend %box-shadow-1;
+  }
+}
+//
+//Checkbox
+input[type="checkbox"] {
+  + .field-group__checkbox {
+    @extend %overwrite-border-0;
+    @extend %display-flex;
+    &:before {
+      @extend %border-2;
+      @extend %content;
+      @extend %display-block;
+      flex: 0 0 auto;
+      height: 1rem;
+      width: 1rem;
+    }
+  }
+  &:checked {
+    + .field-group__checkbox {
+      &:before {
+        @extend %box-shadow-2;
+      }
+      &:after {
+        @extend %content;
+        @extend %check-icon;
+        @extend %left-0;
+        @extend %position-absolute;
+      }
+    }
+  }
+}
+//
+//Radio
+input[type="radio"] {
+  + .field-group__radio {
+    @extend %overwrite-border-0;
+    @extend %display-flex;
+    &:before {
+      @extend %border-3;
+      @extend %content;
+      @extend %display-block;
+      flex: 0 0 auto;
+      height: 1rem;
+      width: 1rem;
+    }
+  }
+  &:checked {
+    + .field-group__radio {
+      &:before {
+        @extend %box-shadow-2;
+      }
+      &:after {
+        @extend %content;
+        @extend %dot-icon;
+        left: 0.25rem;
+        @extend %position-absolute;
+        top: 0.25rem;
+      }
+    }
+  }
+  $
+}
+
+
+//Select
+.field-group__field_select {
+  @extend %overwrite-border-0;
+  + .field-group__fake-select {
+    @extend %border-2;
+    @extend %bottom-0;
+    color: rgba(0, 0, 0, 0);
+    @extend %display-block;
+    @extend %r-ptb_2;
+    @extend %r-plr_4;
+    @extend %left-0;
+    @extend %pointer-events-none;
+    @extend %position-absolute;
+    @extend %width-100;
+  }
+  &:focus {
+    box-shadow: none;
+    + .field-group__fake-select {
+      @extend %box-shadow-1;
+    }
+  }
+}
+//
+.field-group__field_hide-me {
+  @extend %position-absolute;
+  @extend %opacity-0;
+  left: -9999rem;
+}
+.field-group__field_center {
+  @extend %text-align-center;
+}
+//
+//---------------------------------
+//ALERTBOX AND SUCCESSBOX
+.field-group__alertbox {
+  @extend %display-none;
+  display: none; //firefox bug fix
+  @extend %position-absolute;
+}
+.field-group__alertbox_visible {
+  @extend %overwrite-display-block;
+}
+.field-group__successbox {
+  @extend %display-none;
+  display: none; //firefox bug fix
+  @extend %position-absolute;
+}
+.field-group__successbox_visible {
+  @extend %overwrite-display-block;
+}
+//
+//---------------------------------
+//ADDON
+.field-group__addon {
+  @extend %bottom-0;
+  @extend %display-block;
+  @extend %position-absolute;
+}
+.field-group__addon_right {
+  @extend %right-0;
+}
+.field-group__addon_left {
+  @extend %left-0;
+}
+.field-group__addon_not-clickable {
+  @extend %pointer-events-none;
+}

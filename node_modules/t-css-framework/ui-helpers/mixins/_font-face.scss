@@ -1,0 +1,12 @@
+@mixin includeFont ($fontFamilyName, $fontStyle, $fontWeight, $resourceUrlWithoutExtension) {
+  @font-face {
+    font-family: $fontFamilyName;
+    font-style: $fontStyle;
+    font-weight: $fontWeight;
+    src: url('#{$resourceUrlWithoutExtension}.eot');
+    src: url('#{$resourceUrlWithoutExtension}.woff2') format('woff2'),
+    url('#{$resourceUrlWithoutExtension}.woff') format('woff'),
+    url('#{$resourceUrlWithoutExtension}.ttf') format('truetype'),
+    url('#{$resourceUrlWithoutExtension}.svg#svgFontName') format('svg');
+  }
+}

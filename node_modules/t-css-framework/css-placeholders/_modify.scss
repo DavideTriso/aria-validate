@@ -1,0 +1,8 @@
+//--------------------------
+//DO NOT EDIT
+//--------------------------
+@include generateCssPlaceholders ($cssPlaceholdersBreakpoints, skip, $breakpointSeparator, $namespaceSeparator);
+@include generateCssPlaceholders ($cssPlaceholdersBreakpoints, $overwriteNamespace, $breakpointSeparator, $namespaceSeparator);
+//--------------------------
+//EDIT
+//--------------------------

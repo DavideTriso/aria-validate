@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>test</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="../../../style.css" />
+</head>
+
+<body>
+
+  <div class="field-group">
+    <label class="field-group__label field-group__label_required" for="#1">
+      My input field
+      <abbr title="required field">*</abbr>
+    </label>
+    <input type="text" name="#1" id="#1" class="field-group__field" required />
+    <div class="field-group__alertbox">Alert msg</div>
+    <div class="field-group__successbox">Success msg</div>
+  </div>
+
+
+  <div class="field-group">
+    <label class="field-group__label field-group__label_required" for="#2">
+      My input field
+      <abbr title="required field">*</abbr>
+    </label>
+    <input type="text" name="#2" id="#2" class="field-group__field" required />
+    <span class="field-group__addon field-group__addon_right">Hello!</span>
+    <div class="field-group__alertbox">Alert msg</div>
+    <div class="field-group__successbox">Success msg</div>
+  </div>
+
+
+  <div class="field-group">
+    <input type="checkbox" name="#3" id="#3" class="field-group__field field-group__field_hide-me" />
+    <label class="field-group__checkbox" for="#3">
+      <span class="field-group__fake-label">My chekcbox</span>
+    </label>
+  </div>
+
+
+  <div class="field-group">
+    <input type="radio" name="#4" id="#4" class="field-group__field field-group__field_hide-me" />
+    <label class="field-group__radio" for="#4">
+      <span class="field-group__fake-label">My radio</span>
+    </label>
+  </div>
+
+  <div class="field-group">
+    <label class="field-group__label" for="#5">
+      My textarea field
+    </label>
+    <textarea name="#5" id="#5" rows="10" class="field-group__field"></textarea>
+    <div class="field-group__alertbox">Alert msg</div>
+    <div class="field-group__successbox">Success msg</div>
+  </div>
+
+  <div class="field-group">
+    <label class="field-group__label" for="#6">
+      My select box
+    </label>
+    <select name="#6" id="#6" class="field-group__field field-group__field_select" required>
+      <option value="">Select an option</option>
+      <optgroup label="Group 1">
+        <option value="1">First option</option>
+        <option value="2">Second option</option>
+        <option value="3">Third option</option>
+      </optgroup>
+      <optgroup label="Group 2">
+        <option value="4">Fourth option</option>
+        <option value="5">Fifth option</option>
+        <option value="6">Sixt option</option>
+      </optgroup>
+    </select>
+    <div class="field-group__fake-select" role="none presentation">#</div>
+    <div class="field-group__alertbox">Alert msg</div>
+    <div class="field-group__successbox">Success msg</div>
+  </div>
+
+
+  <div class="field-group">
+    <label class="field-group__label field-group__label_required" for="#1">
+      My input field
+      <abbr title="required field">*</abbr>
+    </label>
+    <input type="text" name="#7" id="#7" class="field-group__field" required />
+    <span class="field-group__addon field-group__addon_right">
+      <button type="button">></button>
+    </span>
+    <ul class="field-group__suggestions">
+      <li data-value="1">Hello</li>
+      <li data-valie="2">Hallo</li>
+      <li data-value=3>Ciao</li>
+      <li data-value=4>Hola</li>
+      <li data-value=5>Haloa</li>
+      <li data-value=6>Guten tag</li>
+      <li data-value=7>Buenos dias</li>
+      <li data-value=8>Buen dia</li>
+      <li data-value="9">Guten morgen</li>
+      <li data-value="9">Buongiorno</li>
+    </ul>
+  </div>
+
+
+</body>
+
+</html>
