@@ -1,0 +1,80 @@
+﻿<!--DEFAULT INPUT FIELD-->
+<div class="field-group">
+    <label class="field-group__label label" for="#1">My input field</label>
+    <input type="text" name="#1" id="#1" class="field-group__field" />
+</div>
+
+
+<!--INPUT FIELD WITH ADAPTIVE PLACEHOLDER-->
+<!--The class .label_adaptive is added with JS, when the field is not empty, or has focus-->
+<div class="field-group field-group_adaptive">
+    <label class="field-group__label label label_adaptive" for="#1">My input field</label>
+    <input type="text" name="#1" id="#1" class="field-group__field" />
+</div>
+
+
+<!--INPUT FIELD WITH ADDON, LABEL WITH REQUIRED FLAG-->
+<div class="field-group">
+    <label class="field-group__label label" for="#2">My input field <abbr class="label__flag" title="required field">*</abbr></label>
+    <input type="text" name="#2" id="#2" class="field-group__field" required />
+    <span class="field-group__addon field-group__addon_right">Hello!</span>
+</div>
+
+<!--CHECKBOX-->
+<div class="field-group">
+    <input type="checkbox" class="field-group__field field-group__field_checkbox" id="#3" name="checkbox-field" />
+    <label class="field-group__label label label_checkbox" for="#3">Checkbox</label>
+</div>
+
+<!--RADIO GROUP-->
+<div class="field-group">
+    <input type="radio" class="field-group__field field-group__field_radio" name="radio" value="1" id="#4-1" />
+    <label class="field-group__label label label_radio" for="#4-1">Radio 1</label>
+
+    <input type="radio" class="field-group__field field-group__field_radio" name="radio" value="2" id="#4-2" />
+    <label class="field-group__label label label_radio" for="#4-2">Radio 2</label>
+
+    <input type="radio" class="field-group__field field-group__field_radio" name="radio" value="3" id="#4-3" />
+    <label class="field-group__label label label_radio" for="#4-3">Radio 3</label>
+</div>
+
+<!--RADIO GROUP INLINE-->
+<div class="field-group field-group_inline">
+    <input type="radio" class="field-group__field field-group__field_radio" name="radio" value="1" id="#4-1" />
+    <label class="field-group__label label label_radio" for="#4-1">Radio 1</label>
+
+    <input type="radio" class="field-group__field field-group__field_radio" name="radio" value="2" id="#4-2" />
+    <label class="field-group__label label label_radio" for="#4-2">Radio 2</label>
+
+    <input type="radio" class="field-group__field field-group__field_radio" name="radio" value="3" id="#4-3" />
+    <label class="field-group__label label label_radio" for="#4-3">Radio 3</label>
+</div>
+
+
+<!--TEXTAREA-->
+<div class="field-group">
+    <label class="field-group__label label" for="#5">My textarea field</label>
+    <textarea class="field-group__field" name="#5" id="#5" rows="10"></textarea>
+</div>
+
+
+
+<!--SELECT-->
+<div class="field-group">
+    <label class="field-group__label label" for="#6">Select</label>
+    <div class="field-group__select-wrapper">
+        <select class="field-group__field field-group__field_select" id="#6" name="#6">
+            <option value="">Choose one option</option>
+            <option value="1">Option 1</option>
+            <option value="2">Option 2</option>
+            <option value="3">Option 3</option>
+            <option value="4">Option 4</option>
+        </select>
+    </div>
+</div>
+
+<!--RANGE-->
+<div class="field-group">
+    <label class="field-group__label label" for="#7">Range</label>
+    <input type="range" class="field-group__field field-group__field_range field-group__field_range-valuestream" min="0 " max="100 " id="#7" name="#7" />
+</div>
